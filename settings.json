@@ -1,0 +1,120 @@
+{
+  "cleanupPeriodDays": 30,
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Fetch",
+      "WebFetch",
+      "mcp__perplexity-mcp__perplexity_search_web",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)",
+      "Bash(realpath:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(sed:*)",
+      "Bash(diff:*)",
+      "Bash(jq:*)",
+      "Bash(wc:*)",
+      "Bash(tr:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rebase:*)",
+      "Bash(git checkout:*)",
+      "Bash(git clone:*)",
+      "Bash(git worktree list:*)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm rebuild:*)",
+      "Bash(npm link:*)",
+      "Bash(npm create:*)",
+      "Bash(npm start:*)",
+      "Bash(npx:*)",
+      "Bash(source:*)",
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(env:*)",
+      "Bash(timeout:*)",
+      "Bash(tmux display-message:*)",
+      "Bash(tmux source-file:*)",
+      "Bash(tmux list-sessions:*)",
+      "Bash(tmux list-keys:*)",
+      "Bash(tmux show-options:*)",
+      "Bash(code:*)",
+      "Bash(code-insiders:*)",
+      "Bash(gemini:*)",
+      "Bash(ada harvest:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(wp:*)",
+      "Bash(for:*)",
+      "Bash(if:*)",
+      "Bash(then:*)",
+      "Bash(else:*)",
+      "Bash(fi:*)",
+      "Bash(done:*)"
+    ],
+    "deny": [
+      "WebSearch"
+    ],
+    "additionalDirectories": [
+      "/Users/emdash/Grimoire",
+      "/Users/emdash/Desktop",
+      "/Users/emdash/Documents",
+      "/Users/emdash/Dev",
+      "/Users/emdash/.claude",
+      "/Users/emdash/Studio",
+      "/Users/emdash/bin"
+    ]
+  },
+  "model": "sonnet",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "terminal-notifier -title \"Ada\" -subtitle \"Finished\" -message \"Finished working in $(if [ -n \"$TMUX\" ]; then tmux display-message -p '#S'; else basename \"$PWD\"; fi)\" -sound default -timeout 10"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "terminal-notifier -title \"Ada\" -subtitle \"Notification\" -message \"Ada needs your attention in $(if [ -n \"$TMUX\" ]; then tmux display-message -p '#S'; else basename \"$PWD\"; fi)\" -sound default -timeout 10"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "exit_plan_mode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/plan-extractor.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "exit_plan_mode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/plan-cleanup.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

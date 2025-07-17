@@ -1,0 +1,152 @@
+#!/bin/bash
+
+# Define claude command path
+CLAUDE_CMD="$HOME/.claude/local/claude"
+
+# Usage: claude-menu [working-dir] [claude-args...]
+
+# Parse working directory if provided
+WORKING_DIR=""
+if [[ -n "$1" && -d "$1" ]]; then
+    WORKING_DIR="$1"
+    shift
+fi
+
+CLAUDE_ARGS="$*"
+
+stty -echo -icanon time 0 min 0
+
+options=("Start new conversation [n]" "Resume previous conversation [r]" "Continue last conversation [c]")
+selected=0
+num_options=${#options[@]}
+
+ORANGE='\033[38;2;218;119;86m'    # Claude orange (#da7756)
+BRIGHT_ORANGE='\033[38;2;218;119;86m' # Same Claude orange
+WHITE='\033[1;37m'           # Bright white
+GRAY='\033[0;37m'            # Light gray
+DIM='\033[2m'                # Dimmed text
+RESET='\033[0m'              # Reset colors
+BOLD='\033[1m'               # Bold text
+
+# Function to draw menu
+draw_menu() {
+    clear
+
+    # Claude Code header - simple orange text with icon
+    echo -e "${BOLD}${ORANGE}✻ Claude Code${RESET}"
+    echo ""
+
+    # Instructions
+    echo -e "${DIM}${GRAY}Use ↑↓ arrow keys to navigate, enter/space to select, or press the letter:${RESET}"
+    echo ""
+
+    for i in "${!options[@]}"; do
+        if [[ $i -eq $selected ]]; then
+            case $i in
+                0)
+                    echo -e "${ORANGE}▶${RESET} ${BOLD}${WHITE}$((i+1))) Start new conversation${RESET} ${DIM}[n]${RESET} ${ORANGE}◀${RESET}"
+                    ;;
+                1)
+                    echo -e "${ORANGE}▶${RESET} ${BOLD}${WHITE}$((i+1))) Resume previous conversation${RESET} ${DIM}[r]${RESET} ${ORANGE}◀${RESET}"
+                    ;;
+                2)
+                    echo -e "${ORANGE}▶${RESET} ${BOLD}${WHITE}$((i+1))) Continue last conversation${RESET} ${DIM}[c]${RESET} ${ORANGE}◀${RESET}"
+                    ;;
+            esac
+        else
+            case $i in
+                0)
+                    echo -e "${GRAY}  $((i+1))) Start new conversation${RESET} ${DIM}[n]${RESET}"
+                    ;;
+                1)
+                    echo -e "${GRAY}  $((i+1))) Resume previous conversation${RESET} ${DIM}[r]${RESET}"
+                    ;;
+                2)
+                    echo -e "${GRAY}  $((i+1))) Continue last conversation${RESET} ${DIM}[c]${RESET}"
+                    ;;
+            esac
+        fi
+    done
+
+    echo ""
+    echo -e "${DIM}${GRAY}Press 'q' to exit to terminal${RESET}"
+}
+
+# Main loop
+while true; do
+    draw_menu
+
+    # Read a single character
+    IFS= read -rsn1 input
+
+    # Handle escape sequences (arrow keys)
+    if [[ $input == $'\x1b' ]]; then
+        # Read the next two characters
+        IFS= read -rsn2 input
+        case $input in
+            '[A') # Up arrow
+                ((selected--))
+                if [[ $selected -lt 0 ]]; then
+                    selected=$((num_options-1))
+                fi
+                ;;
+            '[B') # Down arrow
+                ((selected++))
+                if [[ $selected -ge $num_options ]]; then
+                    selected=0
+                fi
+                ;;
+        esac
+    elif [[ $input == $'\n' ]] || [[ $input == $'\r' ]] || [[ $input == '' ]] || [[ $input == ' ' ]]; then
+        # Enter key or Space pressed
+        break
+    elif [[ $input == '1' ]] || [[ $input == 'n' ]] || [[ $input == 'N' ]]; then
+        selected=0
+        break
+    elif [[ $input == '2' ]] || [[ $input == 'r' ]] || [[ $input == 'R' ]]; then
+        selected=1
+        break
+    elif [[ $input == '3' ]] || [[ $input == 'c' ]] || [[ $input == 'C' ]]; then
+        selected=2
+        break
+    elif [[ $input == 'q' ]] || [[ $input == 'Q' ]] || [[ $input == $'\x1b' ]]; then
+        # Quit option (q, Q, or Escape key)
+        stty echo icanon
+        exit 0
+    fi
+done
+
+# Restore normal terminal mode
+stty echo icanon
+
+# Clear and execute choice
+clear
+
+# Change to working directory if specified
+if [[ -n "$WORKING_DIR" ]]; then
+    cd "$WORKING_DIR"
+fi
+
+case $selected in
+    0)
+        if [[ -n "$CLAUDE_ARGS" ]]; then
+            CLAUDE_FROM_MENU=1 $CLAUDE_CMD $CLAUDE_ARGS
+        else
+            CLAUDE_FROM_MENU=1 $CLAUDE_CMD
+        fi
+        ;;
+    1)
+        if [[ -n "$CLAUDE_ARGS" ]]; then
+            CLAUDE_FROM_MENU=1 $CLAUDE_CMD -r $CLAUDE_ARGS
+        else
+            CLAUDE_FROM_MENU=1 $CLAUDE_CMD -r
+        fi
+        ;;
+    2)
+        if [[ -n "$CLAUDE_ARGS" ]]; then
+            CLAUDE_FROM_MENU=1 $CLAUDE_CMD -c $CLAUDE_ARGS
+        else
+            CLAUDE_FROM_MENU=1 $CLAUDE_CMD -c
+        fi
+        ;;
+esac

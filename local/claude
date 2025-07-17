@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# Claude Code Smart Wrapper
+#
+# This wrapper enhances Claude Code with the following features:
+#
+# 1. AUTO SYSTEM PROMPT INJECTION:
+#    - Automatically loads PROMPT.md for interactive sessions (claude, claude -c, claude -r)
+#    - Fast-path bypass for scripting commands (claude -p ...)
+#    - Merges with existing --append-system-prompt if provided
+#
+# 2. OPTIONAL MENU MODE (off by default):
+#    - Set CLAUDE_USE_MENU=1 to show claude-menu for plain "claude" commands
+#    - Only affects bare "claude" - all other commands work normally
+#    - Provides interactive selection: new/resume/continue conversations
+#
+# Usage:
+#   claude                      → Interactive mode with system prompt (or menu if enabled)
+#   claude -c                   → Continue with system prompt
+#   claude -r                   → Resume with system prompt
+#   claude -p "query"           → Fast scripting mode (no system prompt)
+#   CLAUDE_USE_MENU=1 claude    → Enable menu for plain "claude" commands
+#   CLAUDE_WRAPPER_DEBUG=1 claude → Enable debug output
+
+REAL_CLAUDE="$HOME/.claude/local/node_modules/.bin/claude"
+
+# If -p/--print flag is present, pass through immediately
+for arg in "$@"; do
+    if [[ "$arg" == "-p" || "$arg" == "--print" ]]; then
+        exec "$REAL_CLAUDE" "$@"
+    fi
+done
+
+# Simple settings - edit below or set via environment variables
+DEBUG=${CLAUDE_WRAPPER_DEBUG:-0}
+USE_MENU=${CLAUDE_USE_MENU:-0}
+
+debug() {
+    if [[ $DEBUG -eq 1 ]]; then
+        echo "[claude wrapper] $*" >&2
+    fi
+}
+
+PROMPT_FILE="$HOME/.claude/PROMPT.md"
+
+debug "Original args: $*"
+
+if [[ ! -f "$PROMPT_FILE" ]]; then
+    debug "Warning: System prompt file not found at $PROMPT_FILE" >&2
+    exec "$REAL_CLAUDE" "$@"
+    exit $?
+fi
+
+should_inject_prompt() {
+    # Check if no arguments (interactive mode)
+    if [[ $# -eq 0 ]]; then
+        return 0
+    fi
+
+    # Check for -c/--continue or -r/--resume flags
+    for arg in "$@"; do
+        case "$arg" in
+            -c|--continue|-r|--resume)
+                return 0
+                ;;
+        esac
+    done
+
+    # Default: don't inject for other commands
+    return 1
+}
+
+should_use_menu() {
+    # Only use menu if explicitly enabled, no arguments provided, and not called from menu
+    if [[ $USE_MENU -eq 1 && $# -eq 0 && -z "$CLAUDE_FROM_MENU" ]]; then
+        return 0
+    fi
+    return 1
+}
+
+merge_system_prompt() {
+    local args=()
+    local has_system_prompt=false
+    local existing_prompt=""
+
+    local arg_array=("$@")
+    local i=0
+
+    while [[ $i -lt ${#arg_array[@]} ]]; do
+        local arg="${arg_array[$i]}"
+        case "$arg" in
+            --append-system-prompt)
+                has_system_prompt=true
+                # Get the next argument (the existing prompt file/text)
+                ((i++))
+                if [[ $i -lt ${#arg_array[@]} ]]; then
+                    existing_prompt="${arg_array[$i]}"
+                fi
+                ;;
+            *)
+                args+=("$arg")
+                ;;
+        esac
+        ((i++))
+    done
+
+    local our_prompt_content
+    our_prompt_content="$(cat "$PROMPT_FILE")"
+    debug "System prompt loaded"
+
+    if [[ $has_system_prompt == true ]]; then
+        # Merge existing prompt with our prompt file
+        local combined_prompt="$existing_prompt"$'\n\n'"$our_prompt_content"
+        args+=(--append-system-prompt "$combined_prompt")
+        debug "Merged with existing system prompt"
+    else
+        # No existing system prompt, just add ours
+        args+=(--append-system-prompt "$our_prompt_content")
+        debug "Added system prompt"
+    fi
+    exec "$REAL_CLAUDE" "${args[@]}"
+}
+
+# Main logic
+if should_use_menu "$@"; then
+    # Launch claude-menu instead of direct Claude
+    debug "Launching claude-menu"
+    exec "$HOME/.claude/bin/claude-menu"
+elif should_inject_prompt "$@"; then
+    # Inject/merge the system prompt
+    merge_system_prompt "$@"
+else
+    # Pass through without modification
+    exec "$REAL_CLAUDE" "$@"
+fi

@@ -1,0 +1,17 @@
+.claude/
+gcp-oauth.keys.json
+.env
+todos/
+shell-snapshots/
+projects/
+playground/
+logs/
+local/
+!local/claude
+ide/
+claude-code-*/
+.DS_Store
+statsig/
+PROMPT.md
+
+commands/calendar-*.md
