@@ -1,6 +1,6 @@
 ---
-description: "Conduct comprehensive research on a topic and prepare a detailed report"
-allowed-tools: ["WebFetch", "WebSearch", "mcp__perplexity-mcp__perplexity_search_web", "Read", "Glob", "Grep", "Task", "TodoRead", "TodoWrite", "LS", "Write", "Edit", "MultiEdit", "NotebookRead", "NotebookEdit"]
+description: Conduct comprehensive research on a topic and prepare a detailed report
+allowed-tools: WebFetch, mcp__perplexity-mcp__perplexity_search_web, Read, Glob, Grep, Task, TodoRead, TodoWrite, LS, Write, Edit, MultiEdit, NotebookRead, NotebookEdit
 ---
 
 # Research Request

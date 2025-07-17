@@ -1,6 +1,6 @@
 ---
 description: "Add todo items to today's entry Work or Personal sections"
-allowed-tools: ["Bash", "Read", "Edit", "Write"]
+allowed-tools: Bash(*), Read, Edit, Write
 ---
 
 # Vault Todo

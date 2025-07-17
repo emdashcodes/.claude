@@ -1,6 +1,6 @@
 ---
-description: "Copy relevant details from the last response to clipboard"
-allowed-tools: ["Bash"]
+description: Copy relevant details from the last response to clipboard
+allowed-tools: Bash(pbcopy)
 ---
 
 # Copy to Clipboard

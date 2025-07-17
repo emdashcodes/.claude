@@ -1,6 +1,6 @@
 ---
 description: "Archive completed tasks while preserving nested folder structure"
-allowed-tools: ["Bash", "Read", "Edit", "LS", "Glob", "Grep"]
+allowed-tools: Bash(*), Read, Edit, LS, Glob, Grep
 ---
 
 # Task Archive

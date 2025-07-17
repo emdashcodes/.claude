@@ -1,6 +1,6 @@
 ---
 description: "Garden and maintain tasks with natural language queries and filters"
-allowed-tools: ["Bash", "Read", "Edit", "LS", "Glob", "Grep"]
+allowed-tools: Bash(*), Read, Edit, LS, Glob, Grep
 ---
 
 # Task Garden

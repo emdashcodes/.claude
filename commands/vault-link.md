@@ -1,6 +1,6 @@
 ---
 description: "Create cross-references between related notes in Grimoire"
-allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
+allowed-tools: Read, Write, Edit, Bash(*), Glob, Grep
 ---
 
 # Vault Link

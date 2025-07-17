@@ -1,6 +1,6 @@
 ---
 description: "Create a new task with natural language description and auto-categorization"
-allowed-tools: ["Bash", "Read", "Write", "LS", "Glob"]
+allowed-tools: Bash(*), Read, Write, LS, Glob
 ---
 
 # Task New

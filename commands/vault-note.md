@@ -1,6 +1,6 @@
 ---
 description: "Create quick notes in Grimoire Inbox with timestamp"
-allowed-tools: ["Bash", "Write", "Read", "LS"]
+allowed-tools: Bash(*), Write, Read, LS
 ---
 
 # Vault Note

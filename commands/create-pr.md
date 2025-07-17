@@ -1,6 +1,6 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(gh pr list:*), Bash(gh pr create:*), Bash(gh pr status:*)
 description: Create a PR
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(gh pr list:*), Bash(gh pr create:*), Bash(gh pr status:*), Bash(git status), Bash(git diff), Bash(git branch), Bash(git log)
 ---
 
 # PR Request

@@ -1,6 +1,6 @@
 ---
-description: "Copy content from the last response formatted as block quotes for replying"
-allowed-tools: ["Bash"]
+description: Copy content from the last response formatted as block quotes for replying
+allowed-tools: Bash(pbcopy)
 ---
 
 # Copy as Block Quote

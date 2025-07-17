@@ -1,6 +1,6 @@
 ---
 description: "Create weekly entry structure with daily entries for the week, including calendar integration"
-allowed-tools: ["Bash", "Read", "Write", "LS", "Edit", "mcp__google-calendar__list-events"]
+allowed-tools: Bash(*), Read, Write, LS, Edit, mcp__google-calendar__list-events
 ---
 
 # Vault Week Setup

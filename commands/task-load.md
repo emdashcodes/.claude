@@ -1,6 +1,6 @@
 ---
 description: "Load task context and provide workspace setup guidance"
-allowed-tools: ["Bash", "Read", "Edit", "LS", "Glob", "Grep"]
+allowed-tools: Bash(*), Read, Edit, LS, Glob, Grep
 ---
 
 # Task Load
