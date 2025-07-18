@@ -25,6 +25,7 @@ Share, fork, copy parts of, and customize this configuration to build your own s
 ├── commands/              # Custom slash commands
 ├── hooks/                 # Automation hooks
 ├── bin/                   # Additional utility scripts (add to your PATH)
+│   └── claude-sysinfo     # System info utility for secure command permissions
 └── local/
     └── claude             # Smart wrapper script
 ```
@@ -177,3 +178,16 @@ The `commands/` directory contains custom slash commands that extend Claude Code
 - **`/pbquote`**: Quote and copy formatted text blocks
 
 All vault-integrated commands use the vault configuration system for portable path management and include dynamic context injection for real-time system information.
+
+### System Info Utility (`bin/claude-sysinfo`)
+
+A secure wrapper utility that provides system information without requiring broad bash permissions in slash commands. Commands can use `Bash(claude-sysinfo:*)` instead of complex shell operations.
+
+**Common usage:**
+- `claude-sysinfo session-context` - Full context for session commands
+- `claude-sysinfo task-context` - Full context for task commands  
+- `claude-sysinfo date` - Current date (YYYY-MM-DD)
+- `claude-sysinfo git-branch` - Current git branch
+- `claude-sysinfo vault-tasks-path` - Tasks directory path
+
+**Security benefit:** Slash commands can access system info through specific utility calls rather than requiring `Bash(*)` permissions for complex shell operations.

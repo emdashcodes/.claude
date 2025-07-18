@@ -1,6 +1,6 @@
 ---
 description: Create a new task
-allowed-tools: Bash, Read, Write, LS, Glob, Grep
+allowed-tools: Bash(claude-sysinfo:*), Bash(mkdir:*), Bash(find:*), Bash(grep:*), Bash(sort:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(cut:*), Bash(awk:*), Bash(sed:*), Read, Write, LS, Glob, Grep
 ---
 
 # Task New
@@ -9,14 +9,8 @@ Create a new task
 
 ## Context
 
-- Current date: !`date +%Y-%m-%d` (the date is in the format `YYYY-MM-DD`)
-- Current time: !`date +%H:%M`
-- Current working directory: !`pwd`
-- Current tmux session: !`tmux display-message -p '#{session_name}' 2>/dev/null || echo "No tmux session"`
-- Current git branch: !`git branch --show-current 2>/dev/null || echo "Not in git repository"`
-- Current git worktree: !`git worktree list --porcelain 2>/dev/null | head -1 | sed 's/worktree //' || echo "No worktree"`
-- Tasks path: !`cat ~/.claude/vault.json | jq -r '.tasks_path'`
-- Task template: !`cat ~/.claude/vault.json | jq -r '.task_template'`
+!`claude-sysinfo task-context`
+- Task template: !`claude-sysinfo vault-task-template`
 
 ## Instructions
 
