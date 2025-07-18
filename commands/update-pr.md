@@ -30,8 +30,6 @@ Update an existing Pull Request with recent commits and changes that may not be 
 - Keep the original PR title unless the scope has significantly changed
 - Add new commits to the description in a logical way
 - Update testing instructions if new features require different testing
-- Preserve any existing discussion context
-- Use clear language about what's been added/changed since the original PR
 
 ## Fallback
 
