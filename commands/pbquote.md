@@ -1,15 +1,11 @@
 ---
-description: "Copy content from the last response formatted as block quotes for replying"
-allowed-tools: ["Bash"]
+description: Copy content from the last response formatted as block quotes for replying
+allowed-tools: Bash(pbcopy)
 ---
 
 # Copy as Block Quote
 
 Copy relevant details from the last response(s) to the clipboard formatted with `>` for easy replying/quoting.
-
-## Usage
-
-`/user:pbquote`
 
 ## Instructions
 
@@ -27,6 +23,6 @@ Copy relevant details from the last response(s) to the clipboard formatted with 
 
 4. **Confirm**: Let the user know what was copied in block quote format.
 
-## Arguments
+## Additional User Context
 
 $ARGUMENTS

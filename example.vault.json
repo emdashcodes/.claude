@@ -1,0 +1,8 @@
+{
+  "tasks_path": "~/Vault/Tasks",
+  "entries_path": "~/Vault/Daily",
+  "sessions_path": "~/Vault/Sessions",
+  "task_template": "~/.claude/templates/Task.md",
+  "memory_path": "~/Vault/Memory",
+  "plans_path": "~/Vault/Plans"
+}

@@ -1,6 +1,5 @@
 .claude/
 gcp-oauth.keys.json
-.env
 todos/
 shell-snapshots/
 projects/
@@ -14,4 +13,5 @@ claude-code-*/
 statsig/
 PROMPT.md
 
-commands/calendar-*.md
+vault.json
+.env

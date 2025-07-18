@@ -1,15 +1,11 @@
 ---
-description: "Copy relevant details from the last response to clipboard"
-allowed-tools: ["Bash"]
+description: Copy relevant details from the last response to clipboard
+allowed-tools: Bash(pbcopy)
 ---
 
 # Copy to Clipboard
 
 Copy relevant details from the last response(s) to the user's clipboard.
-
-## Usage
-
-`/user:pbcopy`
 
 ## Instructions
 
@@ -25,6 +21,6 @@ Copy relevant details from the last response(s) to the user's clipboard.
 
 3. **Confirm**: Let the user know what was copied.
 
-## Arguments
+## Additional User Context
 
 $ARGUMENTS

@@ -1,10 +1,33 @@
 #!/bin/bash
-# Claude Hook Plan Extractor
-# Extracts plan content from exit_plan_mode hook JSON data
-# Creates smart filenames and adds comprehensive metadata
+# Claude Hook: Plan Extractor
+#
+# PURPOSE:
+#   Automatically captures and saves plan content when Claude's exit_plan_mode tool is used.
+#   Creates draft plan files with rich metadata for tracking and organization.
+#
+# TRIGGERED BY:
+#   Claude Code hook system when exit_plan_mode tool is called
+#
+# FUNCTIONALITY:
+#   - Extracts plan content from Claude's exit_plan_mode hook JSON data
+#   - Generates intelligent filenames based on plan H1 title + session ID
+#   - Adds comprehensive frontmatter metadata (session, tmux, directory, timestamp)
+#   - Saves to configurable plans directory from vault.json
+#   - Creates draft status plans that can later be approved via plan-cleanup.sh
+#
+# CONFIGURATION:
+#   Requires vault.json with plans_path configured
+#   Example: {"plans_path": "~/Vault/Plans"}
+#
+# OUTPUT:
+#   Creates files like: "My Plan Title (12345678).md" in configured plans directory
+
+# Get plans path from vault configuration
+PLANS_PATH=$(cat ~/.claude/vault.json | jq -r '.plans_path')
+PLANS_PATH=$(eval echo "$PLANS_PATH")  # Expand ~ and other variables
 
 # Create directory
-mkdir -p ~/Grimoire/Ada/Plans
+mkdir -p "$PLANS_PATH"
 
 # Read all input
 JSON_DATA=$(cat)
@@ -62,5 +85,5 @@ status: \"draft\"
 FILENAME="$CLEAN_TITLE ($SHORT_SESSION_ID).md"
 
 # Save plan with frontmatter
-echo -e "$FRONTMATTER$PLAN_CONTENT" > ~/Grimoire/Ada/Plans/"$FILENAME"
-echo "Plan saved to ~/Grimoire/Ada/Plans/$FILENAME"
+echo -e "$FRONTMATTER$PLAN_CONTENT" > "$PLANS_PATH/$FILENAME"
+echo "Plan saved to $PLANS_PATH/$FILENAME"

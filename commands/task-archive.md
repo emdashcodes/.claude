@@ -1,43 +1,40 @@
 ---
-description: "Archive completed tasks while preserving nested folder structure"
-allowed-tools: ["Bash", "Read", "Edit", "LS", "Glob", "Grep"]
+description: Archive cancelled/obsolete tasks while preserving nested folder structure
+allowed-tools: Bash, Read, Edit, LS, Glob, Grep
 ---
 
 # Task Archive
 
-Archive cancelled/obsolete tasks to Tasks/Archived/ while maintaining folder hierarchy. For completed tasks, use the Completed folder instead.
+Archive cancelled/obsolete tasks to Tasks/Archived/.
 
-## Usage
+## Context
 
-`/task-archive [natural language task identifier]`
+- Current date: !`date +%Y-%m-%d` (the date is in the format `YYYY-MM-DD`)
+- Current time: !`date +%H:%M`
+- Current working directory: !`pwd`
+- Current tmux session: !`tmux display-message -p '#{session_name}' 2>/dev/null || echo "No tmux session"`
+- Current git branch: !`git branch --show-current 2>/dev/null || echo "Not in git repository"`
+- Current git worktree: !`git worktree list --porcelain 2>/dev/null | head -1 | sed 's/worktree //' || echo "No worktree"`
+- Vault configuration: !`cat ~/.claude/vault.json`
+- Tasks path: !`cat ~/.claude/vault.json | jq -r '.tasks_path'`
 
 ## Instructions
 
-1. **Find Task to Archive**:
-   - Use same fuzzy search logic as task-load
-   - Search in `/Users/emdash/Grimoire/Tasks/**/*.md`
-   - Exclude already archived tasks in `Tasks/Archived/`
-   - Exclude already completed tasks in `Tasks/Completed/`
-   - Present matches if multiple found
+1. **Search for Task**:
+   - Use Glob to find all task files: `!cat ~/.claude/vault.json | jq -r '.tasks_path'/**/*.md`
+   - Exclude archived tasks: avoid `!cat ~/.claude/vault.json | jq -r '.tasks_path'/Archived/`
+   - Exclude completed tasks: avoid `!cat ~/.claude/vault.json | jq -r '.tasks_path'/Completed/`
+   - If specific identifier provided, try exact filename match first
+   - Then try fuzzy matching on filenames
+   - Finally search content using Grep for broader matches
+   - Present top 3-5 matches if multiple found, ask user to clarify
 
 2. **Validate Task Status**:
-   - Read task file and check frontmatter status
-   - If task is "completed", suggest moving to Completed folder instead: "This task is completed. Use `/task-complete` to move to Completed folder, or continue to archive as cancelled/obsolete?"
+   - Read task file and check status
+   - If task is "completed", suggest using `/task-complete` instead
    - Show task summary before archiving
-   - Ask for explicit confirmation: "Archive '[task-filename]' to archived folder? (y/n)"
 
-3. **Determine Archive Location**:
-   - Get current task path relative to Tasks/ root
-   - Example: `/Users/emdash/Grimoire/Tasks/Automattic/AI Agents/feature-task.md`
-   - Archive path: `/Users/emdash/Grimoire/Tasks/Archived/Automattic/AI Agents/feature-task.md`
-   - Preserve full nested directory structure in archive
-
-4. **Create Archive Directory Structure**:
-   - Extract directory path from current task location
-   - Create nested directories in archive: `mkdir -p /Users/emdash/Grimoire/Tasks/Archived/[category-path]/`
-   - Ensure all parent directories exist
-
-5. **Update Task Metadata Before Archiving with Complete Gardening**:
+3. **Update Task Metadata Before Archiving**:
    - Update task frontmatter:
      - `status`: "archived"
      - `updated_at`: Current timestamp in ISO format
@@ -55,16 +52,21 @@ Archive cancelled/obsolete tasks to Tasks/Archived/ while maintaining folder hie
      - Add archival reason to task notes if not obvious
    - Preserve all other metadata and content
 
-6. **Move Task File**:
+4. **Move Task File**:
+   - Determine archive location: `!cat ~/.claude/vault.json | jq -r '.tasks_path'/Archived/[category-path]/`
+   - Maintain exact folder structure in archive directory
+   - Support unlimited nesting depth
+   - Preserve file naming and content exactly
+   - Create directory structure with `mkdir -p`
    - Use `mv` command to move file to archive location
    - Verify move was successful
    - Check that original file no longer exists
    - Confirm archived file exists and is readable
 
-7. **Update Related Tasks with Metadata Gardening**:
+5. **Update Related Tasks**:
    - Search for tasks that reference this task in:
      - `depends_on` arrays
-     - `blocks` arrays  
+     - `blocks` arrays
      - `related_to` arrays
    - Update those task files to reflect archived status
    - Use Grep to find references: search for task filename or title
@@ -74,25 +76,12 @@ Archive cancelled/obsolete tasks to Tasks/Archived/ while maintaining folder hie
      - Update any blocking relationships
      - Add session log references if relevant
 
-8. **Display Archive Summary**:
+6. **Display Summary**:
    - Show original path → archived path
    - Display task name (from filename) and completion date
    - List any related tasks that were updated
    - Provide archive location for future reference
-   - Show command to unarchive if needed: suggest manual mv back
 
-9. **Archive Directory Organization**:
-   - Maintain exact folder structure: `Tasks/Archived/[original-category-path]/`
-   - Support unlimited nesting depth
-   - Preserve file naming and content exactly
-   - Allow browsing archived tasks by category
-
-10. **Safety Checks**:
-    - Verify source file exists before moving
-    - Check destination doesn't already exist (prevent overwrites)
-    - Validate file permissions
-    - Confirm successful move before updating related tasks
-
-## User Request
+## Additional User Context
 
 $ARGUMENTS
