@@ -1,6 +1,6 @@
 ---
 description: Begin a new session
-allowed-tools: Read, LS, Glob, Bash(date), Bash(tmux), Bash(pwd), Bash(echo), Bash(ls), Bash(wc), Bash(tr), Bash(git branch), Bash(git status), Bash(git worktree), Bash(head), Bash(sed)
+allowed-tools: Read, LS, Glob, Bash
 ---
 
 # Session Start
@@ -13,21 +13,26 @@ Initialize a new session by loading relevant context and preparing for a task.
 - Current time: !`date +%H:%M`
 - Current working directory: !`pwd`
 - Current tmux session: !`tmux display-message -p '#{session_name}' 2>/dev/null || echo "No tmux session"`
-- Session folder path: !`echo "/Users/emdash/Grimoire/Journal/Sessions/$(date +%Y/%m/%d)/"`
-- Existing session count for today: !`ls -1 "/Users/emdash/Grimoire/Journal/Sessions/$(date +%Y/%m/%d)/" 2>/dev/null | wc -l | tr -d ' '`
+- Vault configuration: !`cat ~/.claude/vault.json`
+- Tasks path: !`cat ~/.claude/vault.json | jq -r '.tasks_path'`
+- Entries path: !`cat ~/.claude/vault.json | jq -r '.entries_path'`
+- Sessions path: !`cat ~/.claude/vault.json | jq -r '.sessions_path'`
+- Memory path: !`cat ~/.claude/vault.json | jq -r '.memory_path'`
+- Session folder path: !`echo "$(cat ~/.claude/vault.json | jq -r '.sessions_path')/$(date +%Y/%m/%d)/"`
+- Existing session count for today: !`ls -1 "$(cat ~/.claude/vault.json | jq -r '.sessions_path')/$(date +%Y/%m/%d)/" 2>/dev/null | wc -l | tr -d ' '`
 - Current git branch: !`git branch --show-current 2>/dev/null || echo "Not in git repository"`
 - Current git status: !`git status --porcelain 2>/dev/null | wc -l | tr -d ' '` files changed
 - Current git worktree: !`git worktree list --porcelain 2>/dev/null | head -1 | sed 's/worktree //' || echo "No worktree"`
 
 ## Instructions
 
-1. **Load Core Memory Context**: Read these essential files from Grimoire:
-   - `/Users/emdash/Grimoire/Memory/Em - Preferences & Patterns.md` - Load Em's working style and preferences
-   - Check for any project-specific memory files in `/Users/emdash/Grimoire/Memory/` related to the user prompt or the tmux session name
+1. **Load Core Memory Context**: Read these essential files from vault:
+   - Check `!cat ~/.claude/vault.json | jq -r '.memory_path'` for relevant memory files (preferences, etc)
+   - Check for any project-specific memory files related to the user prompt or the tmux session name
 
 2. **Review Recent Sessions**:
-   - List recent journal entries in `/Users/emdash/Grimoire/Journal/Sessions/YYYY/MM/DD/`
-   - List recent entries in `/Users/emdash/Grimoire/Journal/Entries/YYYY/MM/`
+   - List recent journal entries in `!cat ~/.claude/vault.json | jq -r '.sessions_path'`
+   - List recent entries in `!cat ~/.claude/vault.json | jq -r '.entries_path'`
    - If relevant to the user prompt, briefly scan the most recent 2-3  entries for context
    - Note any ongoing work
 
@@ -39,7 +44,7 @@ Initialize a new session by loading relevant context and preparing for a task.
    - Note any project-specific instructions or conventions
 
 4. **Check Active Tasks**: Before concluding session start:
-   - Use Glob to scan `/Users/emdash/Grimoire/Tasks/**/*.md` for active tasks (exclude Archived/ and Completed/)
+   - Use Glob to scan `!cat ~/.claude/vault.json | jq -r '.tasks_path'/**/*.md` for active tasks (exclude Archived/ and Completed/)
    - Exclude archived tasks in `Tasks/Archived/`
    - Look for tasks with status="active" or recent updates
    - Analyze task metadata quality:

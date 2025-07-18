@@ -36,3 +36,7 @@ Update an existing Pull Request with recent commits and changes that may not be 
 ## Fallback
 
 If no PR exists for the current branch, suggest creating one using the create-pr command.
+
+## User Request
+
+$ARGUMENTS

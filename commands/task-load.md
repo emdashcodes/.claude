@@ -1,22 +1,29 @@
 ---
-description: "Load task context and provide workspace setup guidance"
-allowed-tools: Bash(*), Read, Edit, LS, Glob, Grep
+description: Load task context and provide workspace setup guidance
+allowed-tools: Bash, Read, Edit, LS, Glob, Grep
 ---
 
 # Task Load
 
-Load task context with fuzzy search and provide workspace setup guidance.
+Load task context
 
-## Usage
+## Context
 
-`/task-load [natural language task identifier or description]`
+- Current date: !`date +%Y-%m-%d` (the date is in the format `YYYY-MM-DD`)
+- Current time: !`date +%H:%M`
+- Current working directory: !`pwd`
+- Current tmux session: !`tmux display-message -p '#{session_name}' 2>/dev/null || echo "No tmux session"`
+- Current git branch: !`git branch --show-current 2>/dev/null || echo "Not in git repository"`
+- Current git worktree: !`git worktree list --porcelain 2>/dev/null | head -1 | sed 's/worktree //' || echo "No worktree"`
+- Vault configuration: !`cat ~/.claude/vault.json`
+- Tasks path: !`cat ~/.claude/vault.json | jq -r '.tasks_path'`
 
 ## Instructions
 
 1. **Search for Task**:
-   - Use Glob to find all task files: `/Users/emdash/Grimoire/Tasks/**/*.md`
-   - Exclude archived tasks: avoid `/Users/emdash/Grimoire/Tasks/Archived/`
-   - Exclude completed tasks: avoid `/Users/emdash/Grimoire/Tasks/Completed/`
+   - Use Glob to find all task files: `!cat ~/.claude/vault.json | jq -r '.tasks_path'/**/*.md`
+   - Exclude archived tasks: avoid `!cat ~/.claude/vault.json | jq -r '.tasks_path'/Archived/`
+   - Exclude completed tasks: avoid `!cat ~/.claude/vault.json | jq -r '.tasks_path'/Completed/`
    - If specific identifier provided, try exact filename match first
    - Then try fuzzy matching on filenames
    - Finally search content using Grep for broader matches
@@ -29,11 +36,7 @@ Load task context with fuzzy search and provide workspace setup guidance.
    - Check for blockers and related tasks
 
 3. **Analyze Workspace Requirements**:
-   - Get current working directory: `pwd`
-   - Get current tmux session: `tmux display-message -p '#{session_name}' 2>/dev/null || echo "No tmux session"`
-   - Get current git branch: `git branch --show-current 2>/dev/null || echo "No git repo"`
-   - Get current git worktree: `git worktree list 2>/dev/null | grep $(pwd) || echo "Standard repo"`
-   - Compare with task requirements:
+   - Compare the provided context with the task requirements:
      - Task working_directory vs current directory
      - Task tmux_session vs current tmux session
      - Task branch vs current branch
@@ -42,20 +45,18 @@ Load task context with fuzzy search and provide workspace setup guidance.
 4. **Provide Setup Guidance**:
    - **NEVER auto-change directories or sessions**
    - **INFORM USER** about needed changes:
-     - If different directory needed: "💡 Task workspace: `cd [task-working-directory]`"
-     - If different tmux session: "💡 Task tmux session: `tmux attach -t [session-name]`"
-     - If different branch: "💡 Task branch: `git checkout [branch-name]`"
-     - If different worktree: "💡 Task worktree: `cd [worktree-path]`"
-   - Show current vs required workspace setup in table format
+     - If different directory needed: "Task workspace: `cd [task-working-directory]`"
+     - If different tmux session: "Task tmux session: `tmux attach -t [session-name]`"
+     - If different branch: "Task branch: `git checkout [branch-name]`"
+     - If different worktree: "Task worktree: `cd [worktree-path]`"
+   - Show current vs required workspace setup to the user
 
-5. **Update Task Metadata with Gardening**:
-   - Get current session ID: generate UUID or use timestamp
+5. **Update Task Metadata**:
    - Verify and update task frontmatter:
      - `updated_at`: Current timestamp in ISO format
      - `session_id`: Current session identifier
      - `tmux_session`: Current tmux session name
-     - `working_directory`: Current working directory (if not set)
-     - `branch`: Current git branch (if not set)
+     - `working_directory`: Current working directory
      - `worktree`: Current git worktree path (if applicable)
      - If status is "pending" or "draft", suggest changing to "active"
      - Set `started_at` timestamp if status changes to "active" and not already set
@@ -64,30 +65,14 @@ Load task context with fuzzy search and provide workspace setup guidance.
      - Ensure timestamps are in correct ISO format
      - Validate that arrays are properly formatted
      - Confirm entries array includes today's date
-   - Add WikiLink to today's daily entry if not already present, removing comments
-   - Suggest creating session log entry with WikiLink back to task
+   - Add WikiLink to today's daily entry if not already present
 
-6. **Display Task Dashboard**:
-   - Show task name (from filename), tags, status, priority, category
-   - Display progress log with checkboxes
-   - Show blockers and dependencies
-   - List related tasks if any
-   - Display recent session notes
-   - Show GitHub PRs and Linear issues if present
-
-7. **Show Related Context**:
+6. **Check Related Context**:
    - Check for depends_on tasks and show their status
    - Check for tasks that this blocks
    - Look for related_to tasks in same category
    - Suggest next actions based on progress log
 
-8. **Fuzzy Search Logic**:
-   - Try exact filename match (without .md extension)
-   - Try partial filename match
-   - Search tags in frontmatter for keyword matches
-   - Search content for keywords
-   - Rank by relevance: exact > filename > tags > content
-
-## User Request
+## Additional User Context
 
 $ARGUMENTS

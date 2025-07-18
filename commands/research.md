@@ -52,6 +52,6 @@ Cite sources using [index] notation inline with sources provided at the end of t
 
 Provide the user a through summary of the research report once you are finished.
 
-## User's Research Request
+## Additional User Context
 
 $ARGUMENTS

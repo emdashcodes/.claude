@@ -1,6 +1,6 @@
 ---
 description: Start a session with a specific task
-allowed-tools: Read, Edit, LS, Glob, Grep, Bash(date), Bash(tmux), Bash(pwd), Bash(echo), Bash(ls), Bash(wc), Bash(tr), Bash(git branch), Bash(git status), Bash(git worktree), Bash(head), Bash(sed)
+allowed-tools: Read, Edit, LS, Glob, Grep, Bash
 ---
 
 # Session Start Task
@@ -13,8 +13,11 @@ Initialize a new session with specific task context and workspace setup guidance
 - Current time: !`date +%H:%M`
 - Current working directory: !`pwd`
 - Current tmux session: !`tmux display-message -p '#{session_name}' 2>/dev/null || echo "No tmux session"`
-- Session folder path: !`echo "/Users/emdash/Grimoire/Journal/Sessions/$(date +%Y/%m/%d)/"`
-- Existing session count for today: !`ls -1 "/Users/emdash/Grimoire/Journal/Sessions/$(date +%Y/%m/%d)/" 2>/dev/null | wc -l | tr -d ' '`
+- Vault configuration: !`cat ~/.claude/vault.json`
+- Tasks path: !`cat ~/.claude/vault.json | jq -r '.tasks_path'`
+- Sessions path: !`cat ~/.claude/vault.json | jq -r '.sessions_path'`
+- Session folder path: !`echo "$(cat ~/.claude/vault.json | jq -r '.sessions_path')/$(date +%Y/%m/%d)/"`
+- Existing session count for today: !`ls -1 "$(cat ~/.claude/vault.json | jq -r '.sessions_path')/$(date +%Y/%m/%d)/" 2>/dev/null | wc -l | tr -d ' '`
 - Current git branch: !`git branch --show-current 2>/dev/null || echo "Not in git repository"`
 - Current git status: !`git status --porcelain 2>/dev/null | wc -l | tr -d ' '` files changed
 - Current git worktree: !`git worktree list --porcelain 2>/dev/null | head -1 | sed 's/worktree //' || echo "No worktree"`
@@ -25,7 +28,7 @@ Initialize a new session with specific task context and workspace setup guidance
 
 1. **Find and Load Task**:
    - Use same fuzzy search logic as ~/.claude/commands/task-load.md
-   - Search `/Users/emdash/Grimoire/Tasks/**/*.md` (exclude archived and completed)
+   - Search `!cat ~/.claude/vault.json | jq -r '.tasks_path'/**/*.md` (exclude archived and completed)
    - Present matches if multiple found
    - Load the selected task context and metadata
    - Read any additional linked context files

@@ -7,10 +7,6 @@ allowed-tools: Bash(pbcopy)
 
 Copy relevant details from the last response(s) to the clipboard formatted with `>` for easy replying/quoting.
 
-## Usage
-
-`/user:pbquote`
-
 ## Instructions
 
 1. **Identify Content**: Look at the last assistant response and extract the most relevant content
@@ -27,6 +23,6 @@ Copy relevant details from the last response(s) to the clipboard formatted with 
 
 4. **Confirm**: Let the user know what was copied in block quote format.
 
-## Arguments
+## Additional User Context
 
 $ARGUMENTS

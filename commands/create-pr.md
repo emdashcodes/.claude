@@ -46,3 +46,7 @@ Create a comprehensive Pull Request based on the changes we made this session as
 - Do not include every single line or file changed, the GitHub PR view shows these
 - Use clear, professional language
 - Assume the reviewer has context about the project but not about your specific changes
+
+## Additional User Context
+
+$ARGUMENTS

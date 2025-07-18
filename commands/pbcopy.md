@@ -7,10 +7,6 @@ allowed-tools: Bash(pbcopy)
 
 Copy relevant details from the last response(s) to the user's clipboard.
 
-## Usage
-
-`/user:pbcopy`
-
 ## Instructions
 
 1. **Identify Content**: Look at the last assistant response and extract the most relevant content
@@ -25,6 +21,6 @@ Copy relevant details from the last response(s) to the user's clipboard.
 
 3. **Confirm**: Let the user know what was copied.
 
-## Arguments
+## Additional User Context
 
 $ARGUMENTS
