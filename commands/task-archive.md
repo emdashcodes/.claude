@@ -1,6 +1,6 @@
 ---
 description: Archive cancelled/obsolete tasks while preserving nested folder structure
-allowed-tools: Bash, Read, Edit, LS, Glob, Grep
+allowed-tools: Bash(claude-sysinfo:*), Bash(mkdir:*), Bash(mv:*), Bash(find:*), Bash(grep:*), Bash(sort:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(cut:*), Bash(awk:*), Bash(sed:*), Read, Edit, LS, Glob, Grep
 ---
 
 # Task Archive
@@ -9,14 +9,7 @@ Archive cancelled/obsolete tasks to Tasks/Archived/.
 
 ## Context
 
-- Current date: !`date +%Y-%m-%d` (the date is in the format `YYYY-MM-DD`)
-- Current time: !`date +%H:%M`
-- Current working directory: !`pwd`
-- Current tmux session: !`tmux display-message -p '#{session_name}' 2>/dev/null || echo "No tmux session"`
-- Current git branch: !`git branch --show-current 2>/dev/null || echo "Not in git repository"`
-- Current git worktree: !`git worktree list --porcelain 2>/dev/null | head -1 | sed 's/worktree //' || echo "No worktree"`
-- Vault configuration: !`cat ~/.claude/vault.json`
-- Tasks path: !`cat ~/.claude/vault.json | jq -r '.tasks_path'`
+!`claude-sysinfo task-context`
 
 ## Instructions
 

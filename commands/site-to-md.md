@@ -1,6 +1,6 @@
 ---
 description: Download and convert website content to markdown using trafilatura
-allowed-tools: Bash(*), LS, Write, Edit
+allowed-tools: Bash(trafilatura:*), Bash(mkdir:*), Bash(ls:*), Bash(mv:*), Bash(find:*), LS, Write, Edit
 ---
 
 # Site to Markdown Converter

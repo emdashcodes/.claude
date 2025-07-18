@@ -1,32 +1,15 @@
 ---
 description: Close a session with proper documentation
-allowed-tools: Write, Read, Edit, Bash
+allowed-tools: Write, Read, Edit, Bash(claude-sysinfo:*), Bash(find:*), Bash(grep:*), Bash(sort:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(cut:*), Bash(awk:*), Bash(sed:*), Bash(xargs:*)
 ---
 
 # Session End
 
 Properly close a session by capturing insights, updating memory, and creating a session log.
 
-## Usage
-
-`/user:session-end [session end prompt]`
-
 ## Context
 
-- Current date: !`date +%Y-%m-%d` (the date is in the format `YYYY-MM-DD`)
-- Current time: !`date +%H:%M`
-- Current working directory: !`pwd`
-- Current tmux session: !`tmux display-message -p '#{session_name}' 2>/dev/null || echo "No tmux session"`
-- Vault configuration: !`cat ~/.claude/vault.json`
-- Entries path: !`cat ~/.claude/vault.json | jq -r '.entries_path'`
-- Sessions path: !`cat ~/.claude/vault.json | jq -r '.sessions_path'`
-- Memory path: !`cat ~/.claude/vault.json | jq -r '.memory_path'`
-- Session folder path: !`echo "$(cat ~/.claude/vault.json | jq -r '.sessions_path')/$(date +%Y/%m/%d)/"`
-- Existing session count for today: !`ls -1 "$(cat ~/.claude/vault.json | jq -r '.sessions_path')/$(date +%Y/%m/%d)/" 2>/dev/null | wc -l | tr -d ' '`
-- Current git branch: !`git branch --show-current 2>/dev/null || echo "Not in git repository"`
-- Current git status: !`git status --porcelain 2>/dev/null | wc -l | tr -d ' '` files changed
-- Current git worktree: !`git worktree list --porcelain 2>/dev/null | head -1 | sed 's/worktree //' || echo "No worktree"`
-- User arguments: $ARGUMENTS
+!`claude-sysinfo session-context`
 
 ## Instructions
 
