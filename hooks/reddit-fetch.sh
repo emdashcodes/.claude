@@ -24,6 +24,7 @@
 
 # Configuration
 MAX_COMMENTS=10
+MAX_POSTS=10
 
 # Read all input
 JSON_DATA=$(cat)
@@ -246,7 +247,7 @@ elif echo "$RESPONSE" | jq -e '.data.children[0].data.title' >/dev/null 2>&1; th
 "
     
     # Extract top posts (configurable amount)
-    echo "$RESPONSE" | jq -r ".data.children[0:$MAX_COMMENTS][] | select(.data.title != null) | \"### \" + .data.title + \"\n\n**Author:** u/\" + .data.author + \" | **Score:** \" + (.data.score | tostring) + \" | **Comments:** \" + (.data.num_comments | tostring) + \"\n\n\" + (.data.selftext // \"\") + \"\n\n---\n\"" | head -20 > /tmp/reddit_posts.md
+    echo "$RESPONSE" | jq -r ".data.children[0:$MAX_POSTS][] | select(.data.title != null) | \"### \" + .data.title + \"\n\n**Author:** u/\" + .data.author + \" | **Score:** \" + (.data.score | tostring) + \" | **Comments:** \" + (.data.num_comments | tostring) + \"\n\n\" + (.data.selftext // \"\") + \"\n\n---\n\"" > /tmp/reddit_posts.md
     
     MARKDOWN_CONTENT+=$(cat /tmp/reddit_posts.md)
     rm -f /tmp/reddit_posts.md

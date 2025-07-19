@@ -112,6 +112,25 @@ cat ~/.claude/vault.json | jq -r '.task_template'
 The `hooks/` directory contains automation scripts that enhance Claude Code workflows.
 These hooks are triggered automatically by [Claude Code's hook system](https://docs.anthropic.com/en/docs/claude-code/hooks).
 
+### Reddit Fetch Hook
+
+#### `reddit-fetch.sh`
+
+- **Triggered**: When `WebFetch` is called with Reddit URLs (reddit.com domains)
+- **Purpose**: Provides comprehensive Reddit content retrieval via Reddit's public JSON API when standard web fetching is not available
+- **Features**:
+  - Seamless Reddit content access with enhanced functionality
+  - Automatic crosspost detection and original content fetching
+  - Community discussion capture (configurable comment count)
+  - External link detection with actionable `Fetch("URL")` recommendations
+  - Support for multiple post types (text, image, link, crosspost)
+  - Comprehensive metadata display (scores, dates, authors, subreddits)
+  - Subreddit browsing with configurable post count
+- **Configuration**:
+  - `MAX_COMMENTS=10` - Number of comments to display for individual posts
+  - `MAX_POSTS=10` - Number of posts to display for subreddit listings
+- **Usage**: Simply use `WebFetch("https://reddit.com/...")` and the hook provides enhanced content automatically
+
 ### Plan Management Hooks
 
 Two hooks work together to enhance Claude's planning workflow:
