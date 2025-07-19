@@ -103,6 +103,15 @@
             "command": "~/.claude/hooks/plan-extractor.sh"
           }
         ]
+      },
+      {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/reddit-fetch.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
