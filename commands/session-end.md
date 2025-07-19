@@ -28,10 +28,12 @@ Properly close a session by capturing insights, updating memory, and creating a 
      - Check timestamps are in ISO format
      - Ensure arrays are properly formatted
      - Validate entries array includes session date
-5. If you learned new patterns about the user:
-   - Update appropriate memory files in `!cat ~/.claude/vault.json | jq -r '.memory_path'`
-   - Add new insights under appropriate sections (e.g., preferences, patterns, project-specific learnings)
-   - Keep existing content, only add new learnings
+5. If you learned **high-level patterns** about the user:
+   - Update the Preferences & Patterns file **ONLY for persistent patterns that apply across projects and time**
+   - **DO NOT add project-specific details, tool versions, or temporary technical choices**
+   - Focus on: communication style, architectural philosophy, collaboration patterns, research methodology
+   - Update other memory files for project-specific technical learnings if needed
+   - Keep existing content, only add genuinely new high-level insights
 6. Review any incomplete tasks and note them in the session log if relevant
 7. End with a closing message that includes:
    - A brief celebration of the work done

@@ -1,6 +1,7 @@
 # emdashcodes/.claude
 
-This is a Claude Code configuration repository - like dotfiles but for AI. It includes custom commands, automated hooks and workflows, Obsidian integration, and other utilities.
+This is a Claude Code configuration repository - like dotfiles but for AI.
+It includes custom commands, automated hooks and workflows, Obsidian integration, and other utilities.
 
 Share, fork, copy parts of, and customize this configuration to build your own setup based on your own preferences.
 
@@ -15,7 +16,7 @@ Share, fork, copy parts of, and customize this configuration to build your own s
 
 ## Repository Structure
 
-```
+```txt
 .claude/
 ├── README.md              # This file
 ├── CLAUDE.md              # Main Claude Code memory/instructions
@@ -38,9 +39,13 @@ The wrapper enhances the Claude Code command (`claude`) with multiple additional
 
 #### Auto System Prompt Injection
 
-When you run interactive Claude commands (`claude`, `claude -c`, `claude -r`), the wrapper automatically appends your `PROMPT.md` content using `--append-system-prompt`, giving Claude your custom personality and instructions. Think of it as your personal AI configuration file. This is passed as part of the system prompt and is different from context loaded via CLAUDE.md. If an existing `--append-system-prompt` is provided, the two will be merged.
+When you run interactive Claude commands (`claude`, `claude -c`, `claude -r`),
+the wrapper automatically appends your `PROMPT.md` content using `--append-system-prompt`.
 
-This does not run for scripts (`claude -p ...`).
+- This gives Claude a custom personality and instructions. Think of it as your personal AI configuration file.
+- This is passed as part of the system prompt and is different from context loaded via CLAUDE.md.
+- If an existing `--append-system-prompt` is provided, the two will be merged.
+- This does not run for scripts (`claude -p ...`).
 
 #### Menu Mode (off by default)
 
@@ -104,7 +109,8 @@ cat ~/.claude/vault.json | jq -r '.task_template'
 
 ## Automation Hooks
 
-The `hooks/` directory contains automation scripts that enhance Claude Code workflows. These hooks are triggered automatically by [Claude Code's hook system](https://docs.anthropic.com/en/docs/claude-code/hooks).
+The `hooks/` directory contains automation scripts that enhance Claude Code workflows.
+These hooks are triggered automatically by [Claude Code's hook system](https://docs.anthropic.com/en/docs/claude-code/hooks).
 
 ### Plan Management Hooks
 
@@ -145,7 +151,9 @@ Set `plans_path` in `vault.json`.
 
 ## Slash Commands
 
-The `commands/` directory contains custom slash commands that extend Claude Code with specialized workflows. Commands are organized by category:
+The `commands/` directory contains custom slash commands that extend Claude Code with specialized workflows.
+
+Commands are organized by category:
 
 ### Task Management
 
@@ -177,11 +185,11 @@ The `commands/` directory contains custom slash commands that extend Claude Code
 - **`/pbcopy`**: Copy content to clipboard with formatting
 - **`/pbquote`**: Quote and copy formatted text blocks
 
-All vault-integrated commands use the vault configuration system for portable path management and include dynamic context injection for real-time system information.
+All vault-integrated commands use the vault configuration system for portable path management and include dynamic context injection.
 
 ### System Info Utility (`bin/claude-sysinfo`)
 
-A secure wrapper utility that provides system information without requiring broad bash permissions in slash commands. Commands can use `Bash(claude-sysinfo:*)` instead of complex shell operations.
+A secure wrapper utility that provides system information without requiring broad bash permissions in slash commands. Commands can use `Bash(claude-sysinfo:*)`.
 
 **Examples:**
 
@@ -190,8 +198,6 @@ A secure wrapper utility that provides system information without requiring broa
 - `claude-sysinfo date` - Current date (YYYY-MM-DD)
 - `claude-sysinfo git-branch` - Current git branch
 - `claude-sysinfo vault-tasks-path` - Tasks directory path
-
-**Security benefit:** Slash commands can access system info through specific utility calls rather than requiring `Bash(*)` permissions for complex shell operations.
 
 ## Setup Instructions
 
