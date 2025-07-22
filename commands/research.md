@@ -1,6 +1,6 @@
 ---
 description: Conduct comprehensive research on a topic and prepare a detailed report
-allowed-tools: WebFetch, mcp__perplexity-mcp__perplexity_search_web, Read, Glob, Grep, Task, TodoRead, TodoWrite, LS, Write, Edit, MultiEdit, NotebookRead, NotebookEdit
+allowed-tools: WebFetch, mcp__perplexity-mcp__perplexity_search_web, Read, Glob, Grep, Task, TodoRead, TodoWrite, LS, Write, Edit, MultiEdit, NotebookRead, NotebookEdit, Bash
 ---
 
 # Research Request
@@ -21,8 +21,10 @@ Key Instructions:
 - Fetch all web links provided and analyze them using WebFetch, do not rely on internal knowledge alone
 - Use web search to search the web for trusted sources
 - If local file paths are provided, read and analyze *ALL** provided files
-- Spawn multiple **CONCURRENT** sub agents to help you research deeper subjects. You can spawn upwards of 50 **CONCURRENT** agents.
-- Sub agents should also be activated with `ultrathink`.
+- Spawn multiple **CONCURRENT** sub agents to help you research
+- You can spawn upwards of 100 **CONCURRENT** agents so use them as needed
+- Sub agents can also be activated with `ultrathink`
+- Sub agents SHOULD NOT write any files
 - Compare information from multiple sources to ensure accuracy
 - Synthesize findings from all sources
 - Prepare comprehensive report with proper citations
@@ -49,8 +51,7 @@ When you or your sub agents use web search, use the SIFT method:
 
 Cite sources using [index] notation inline with sources provided at the end of the report. Cite all sources including local files with line numbers.
 
-If sources come from Perplexity or task agent research, you **must** provide the sources provided to you by Perplexity and the sub agents.
-Do not just cite the agents themselves.
+If sources come from Perplexity or task agent research, **DO NOT** just cite the agents themselves. You **MUST** provide the sources (URLs, files) provided to you by Perplexity and the sub agents. Ask all sub agents to cite their sources as well.
 
 ### Summary
 

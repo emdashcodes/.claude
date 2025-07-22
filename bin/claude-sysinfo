@@ -27,10 +27,6 @@ case "$1" in
     "vault-config")
         cat ~/.claude/vault.json
         ;;
-    "vault-tasks-path")
-        path=$(cat ~/.claude/vault.json | jq -r '.tasks_path')
-        echo "${path/#\~/$HOME}"
-        ;;
     "vault-entries-path")
         path=$(cat ~/.claude/vault.json | jq -r '.entries_path')
         echo "${path/#\~/$HOME}"
@@ -41,10 +37,6 @@ case "$1" in
         ;;
     "vault-memory-path")
         path=$(cat ~/.claude/vault.json | jq -r '.memory_path')
-        echo "${path/#\~/$HOME}"
-        ;;
-    "vault-task-template")
-        path=$(cat ~/.claude/vault.json | jq -r '.task_template')
         echo "${path/#\~/$HOME}"
         ;;
     "session-folder-path")
@@ -72,7 +64,6 @@ case "$1" in
         echo "- Current working directory: $(claude-sysinfo pwd)"
         echo "- Current tmux session: $(claude-sysinfo tmux-session)"
         echo "- Vault configuration: $(claude-sysinfo vault-config)"
-        echo "- Tasks path: $(claude-sysinfo vault-tasks-path)"
         echo "- Entries path: $(claude-sysinfo vault-entries-path)"
         echo "- Sessions path: $(claude-sysinfo vault-sessions-path)"
         echo "- Memory path: $(claude-sysinfo vault-memory-path)"
@@ -81,16 +72,6 @@ case "$1" in
         echo "- Current git branch: $(claude-sysinfo git-branch)"
         echo "- Current git status: $(claude-sysinfo git-status-count) files changed"
         echo "- Current git worktree: $(claude-sysinfo git-worktree)"
-        ;;
-    "task-context")
-        echo "- Current date: $(claude-sysinfo date) (the date is in the format YYYY-MM-DD)"
-        echo "- Current time: $(claude-sysinfo time)"
-        echo "- Current working directory: $(claude-sysinfo pwd)"
-        echo "- Current tmux session: $(claude-sysinfo tmux-session)"
-        echo "- Current git branch: $(claude-sysinfo git-branch)"
-        echo "- Current git worktree: $(claude-sysinfo git-worktree)"
-        echo "- Vault configuration: $(claude-sysinfo vault-config)"
-        echo "- Tasks path: $(claude-sysinfo vault-tasks-path)"
         ;;
     *)
         echo "Usage: claude-sysinfo <command>"
@@ -104,15 +85,12 @@ case "$1" in
         echo "  git-status-count    - Number of changed files"
         echo "  git-worktree        - Current git worktree path"
         echo "  vault-config        - Full vault configuration"
-        echo "  vault-tasks-path    - Tasks directory path"
         echo "  vault-entries-path  - Entries directory path"
         echo "  vault-sessions-path - Sessions directory path"
         echo "  vault-memory-path   - Memory directory path"
-        echo "  vault-task-template - Task template path"
         echo "  session-folder-path - Today's session folder path"
         echo "  session-count-today - Count of today's sessions"
         echo "  all                 - All basic context info"
         echo "  session-context     - Context for session commands"
-        echo "  task-context        - Context for task commands"
         ;;
 esac

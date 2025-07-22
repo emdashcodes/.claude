@@ -1,0 +1,72 @@
+#!/bin/bash
+# Helper script for mermaid-to-image command
+# Supports both creation and cleanup of temporary mermaid files
+# Usage:
+#   Create: mermaid-helper create "mermaid content here"
+#   Cleanup: mermaid-helper cleanup /path/to/temp/file.mmd
+
+set -e
+
+# Check if any arguments were provided
+if [ $# -eq 0 ]; then
+    echo "Error: No command provided" >&2
+    echo "Usage:" >&2
+    echo "  mermaid-helper create \"mermaid content\"" >&2
+    echo "  mermaid-helper cleanup /path/to/file.mmd" >&2
+    exit 1
+fi
+
+# Get the command
+COMMAND="$1"
+
+case "$COMMAND" in
+    "create")
+        # Check if content was provided
+        if [ $# -lt 2 ]; then
+            echo "Error: No mermaid content provided" >&2
+            echo "Usage: mermaid-helper create \"mermaid content\"" >&2
+            exit 1
+        fi
+
+        # Get the content from the second argument
+        CONTENT="$2"
+
+        # Create a temporary file with .mmd extension
+        TEMP_FILE=$(mktemp -t mermaid-XXXXXX.mmd)
+
+        # Write content to temp file
+        echo "$CONTENT" > "$TEMP_FILE"
+
+        # Output the file path
+        echo "$TEMP_FILE"
+        ;;
+
+    "cleanup")
+        # Check if file path was provided
+        if [ $# -lt 2 ]; then
+            echo "Error: No file path provided" >&2
+            echo "Usage: mermaid-helper cleanup /path/to/file.mmd" >&2
+            exit 1
+        fi
+
+        # Get the file path from the second argument
+        FILE_PATH="$2"
+
+        # Check if file exists and is in temp directory
+        if [ -f "$FILE_PATH" ] && [[ "$FILE_PATH" == /tmp/* || "$FILE_PATH" == /var/folders/* ]]; then
+            rm -f "$FILE_PATH"
+            echo "Cleaned up: $FILE_PATH"
+        else
+            echo "Error: File not found or not a temp file: $FILE_PATH" >&2
+            exit 1
+        fi
+        ;;
+
+    *)
+        echo "Error: Unknown command '$COMMAND'" >&2
+        echo "Usage:" >&2
+        echo "  mermaid-helper create \"mermaid content\"" >&2
+        echo "  mermaid-helper cleanup /path/to/file.mmd" >&2
+        exit 1
+        ;;
+esac
