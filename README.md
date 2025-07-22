@@ -57,10 +57,6 @@ the wrapper automatically appends your `PROMPT.md` content using `--append-syste
 
 The `vault.json` file configures paths to your knowledge vault. These paths are provided to specific Claude Code commands to load relevant files:
 
-- `commands/task-load.md`: Load task context
-- `commands/task-new.md`: Create new task
-- `commands/task-archive.md`: Archive cancelled/obsolete tasks
-- `commands/task-complete.md`: Move completed tasks
 - `commands/session-start.md`: Begin a new session
 - `commands/session-start-task.md`: Start a session with a specific task
 - `commands/session-end.md`: Close a session with proper documentation
@@ -77,19 +73,15 @@ The `vault.json` file configures paths to your knowledge vault. These paths are 
 
    ```json
    {
-     "tasks_path": "~/MyNotes/Projects",
      "entries_path": "~/MyNotes/Daily",
      "sessions_path": "~/MyNotes/Sessions",
-     "task_template": "~/MyNotes/Templates/Task.md",
      "memory_path": "~/MyNotes/Memory",
      "plans_path": "~/MyNotes/Plans"
    }
    ```
 
-- **tasks_path**: Path to your tasks directory
 - **entries_path**: Path to your daily notes directory
 - **sessions_path**: Path to your session log directory (where Claude will store session logs)
-- **task_template**: Path to a template file for tasks
 - **memory_path**: Path to a directory for storing additional memory files for Claude
 - **plans_path**: Path to your plans directory (used by automation hooks)
 
@@ -100,11 +92,11 @@ These can also be standard directories. They do not have to point to an Obsidian
 Slash commands dynamically load paths using bash + jq and are provided in the prompt:
 
 ```bash
-# Get tasks path
-cat ~/.claude/vault.json | jq -r '.tasks_path'
+# Get sessions path
+cat ~/.claude/vault.json | jq -r '.sessions_path'
 
-# Get task template path
-cat ~/.claude/vault.json | jq -r '.task_template'
+# Get memory path
+cat ~/.claude/vault.json | jq -r '.memory_path'
 ```
 
 ## Automation Hooks
@@ -174,35 +166,86 @@ The `commands/` directory contains custom slash commands that extend Claude Code
 
 Commands are organized by category:
 
-### Task Management
+### Git Commands (`/git/*`)
 
-- **`/task-new`**: Create new task with template and metadata
-- **`/task-load`**: Search and load existing task context
-- **`/task-complete`**: Mark task as completed and move to archive
-- **`/task-archive`**: Archive cancelled or obsolete tasks
+- **`/git/create-commit`**: Creates git commits with proper formatting
+  - Enforces max 75 character limit
+  - Prefixes commits with type (feat, fix, docs, etc.)
+  - Analyzes changes to generate meaningful commit messages
+- **`/git/create-pr`**: Creates comprehensive pull requests based on session changes
+  - Generates PR title and body from commit history
+  - Includes test plan and summary
+  - Automatically pushes to remote if needed
+- **`/git/update-pr`**: Updates existing PRs with recent commits
+  - Fetches PR details and updates with new changes
+  - Maintains PR description format
 
-### Session Management
+### Session Management (`/session/*`)
 
-- **`/session-start`**: Begin new session with vault context
-- **`/session-start-task`**: Start session focused on specific task
-- **`/session-end`**: Close session with proper documentation
+- **`/session/start`**: Initializes new sessions by loading relevant context from vault
+  - Loads memory files from configured paths
+  - Sets up session context for ongoing work
+- **`/session/end`**: Closes sessions with proper documentation
+  - Creates session logs in vault
+  - Summarizes work completed
+  - Archives session state
 
-### Git & Development
+### Spec System (`/spec/*`)
 
-- **`/create-commit`**: Create git commit with context analysis
-- **`/create-pr`**: Create GitHub pull request with comprehensive details
-- **`/update-pr`**: Update existing PR with recent changes
+A structured 4-phase approach for building features using EARS methodology:
 
-### Research & Content
+- **`/spec/01-requirements`**: Requirements gathering using EARS (Easy Approach to Requirements Syntax)
+  - Structured format: "When <trigger> the system shall <action>"
+  - Creates formal requirements document
+  - Supports external spec references
+- **`/spec/02-design`**: Creates design documents with research capabilities
+  - Integrates with Perplexity for research
+  - Generates architecture and implementation designs
+  - Creates detailed technical specifications
+- **`/spec/03-implementation-plan`**: Creates actionable implementation task lists
+  - Breaks down design into concrete tasks
+  - Uses TodoWrite for task tracking
+  - Prioritizes and sequences work
+- **`/spec/04-task`**: Executes tasks from the implementation plan
+  - Works through tasks systematically
+  - Updates task status in real-time
+  - Completes implementation based on plan
 
-- **`/research`**: Structured research workflow with source management
-- **`/site-to-md`**: Convert websites to markdown for analysis
-- **`/proofread`**: Professional proofreading and editing workflow
+### Tools (`/tools/*`)
 
-### Utilities
+- **`/tools/mermaid-to-image`**: Converts Mermaid diagrams to images
+  - Supports PNG, SVG, and PDF output formats
+  - Uses mermaid-cli for rendering
+  - Handles complex diagram types
+- **`/tools/pbcopy`**: Copies relevant content from responses to clipboard
+  - Extracts code blocks and specific content
+  - Maintains formatting for pasting
+- **`/tools/pbquote`**: Copies content formatted as block quotes
+  - Formats for replying to messages
+  - Preserves markdown structure
+- **`/tools/site-to-md`**: Downloads and converts websites to markdown
+  - Uses trafilatura for content extraction
+  - Preserves article structure and metadata
+  - Useful for research and documentation
 
-- **`/pbcopy`**: Copy content to clipboard with formatting
-- **`/pbquote`**: Quote and copy formatted text blocks
+### Standalone Commands
+
+- **`/proofread`**: Professional proofreading and editing
+  - Checks grammar, flow, and clarity
+  - Preserves author's voice and style
+  - Provides tracked changes and explanations
+- **`/research`**: Comprehensive research with Perplexity integration
+  - Structured research workflow
+  - Source management and citation tracking
+  - Detailed reporting with findings
+
+### Key Features Across Commands
+
+- **Tool Restrictions**: Each command has specific `allowed-tools` to limit access appropriately
+- **Context Integration**: Commands use `!` syntax to execute and embed command output
+- **Vault Integration**: Session commands integrate with Obsidian vault for persistence
+- **Research Capabilities**: Multiple commands support web search via Perplexity MCP
+- **EARS Methodology**: The spec system uses formal requirements syntax for clarity
 
 All vault-integrated commands use the vault configuration system for portable path management and include dynamic context injection.
 
