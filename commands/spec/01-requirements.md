@@ -1,6 +1,6 @@
 ---
 description: Spec: Requirements Gathering
-allowed-tools: Bash, Read, Write, Edit, MultiEdit, Glob, Grep, LS
+allowed-tools: Read, Write, Edit, MultiEdit, Glob, Grep, LS
 ---
 
 # Spec: Requirements Gathering
@@ -61,6 +61,7 @@ EARS categorizes requirements into five types, each with a specific template:
 - You SHOULD consider edge cases, user experience, technical constraints, and success criteria in the initial requirements
 - After updating the requirement document, you MUST ask the user IN CHAT "Do the requirements look good? If so, we can move on to the design."
 - You MUST make modifications to the requirements document if the user requests changes or does not explicitly approve
+- You MUST NOT include any questions in the requirements document itself
 - You MUST ask for explicit approval after every iteration of edits to the requirements document
 - You MUST NOT proceed to the design document until receiving clear approval (such as "yes", "approved", "looks good", etc.)
 - You MUST continue the feedback-revision cycle until explicit approval is received

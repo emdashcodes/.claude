@@ -1,3 +1,24 @@
+# Specs
+
+Specs are a structured multi-phase workflow for feature development that breaks complex features into manageable, well-documented steps. The spec system uses EARS (Easy Approach to Requirements Syntax) for precise requirement specification and ensures thorough planning before implementation.
+
+## Spec Phases
+
+1. **Requirements** - Gather and refine feature requirements using EARS format
+2. **Design** - Create detailed technical design with research and architecture
+3. **Implementation Plan**  - Break design into actionable coding tasks
+4. **Task Execution** - Execute individual tasks from the implementation plan
+
+## File Structure
+
+Specs are organized under `.claude/specs/{feature_name}/` with:
+
+- `requirements.md` - EARS-formatted requirements with user stories and acceptance criteria
+- `design.md` - Technical design with architecture, components, data models, and error handling
+- `tasks.md` - Numbered checklist of specific coding tasks that build incrementally
+
+When reading 1 spec file for a feature you MUST read all 3 spec files.
+
 # Rules
 
 ## Always Fetch URLs When Provided
