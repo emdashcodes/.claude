@@ -1,4 +1,6 @@
-# Specs
+# Capabilities
+
+## Specs
 
 Specs are a structured multi-phase workflow for feature development that breaks complex features into manageable, well-documented steps. The spec system uses EARS (Easy Approach to Requirements Syntax) for precise requirement specification and ensures thorough planning before implementation.
 
@@ -21,6 +23,23 @@ When reading 1 spec file for a feature you MUST read all 3 spec files.
 
 # Rules
 
+## Concurrent Agent Execution
+
+**CRITICAL**: When spawning multiple agents using the Task tool, ALWAYS invoke them CONCURRENTLY in a SINGLE MESSAGE. Never spawn agents sequentially across multiple messages. This applies to:
+
+- Research agents analyzing different topics
+- PR review agents checking different aspects
+- Any multi-agent workflow
+
+Example:
+
+```python
+# CORRECT - All in ONE message:
+Task("Agent 1", "First task...", "agent-type")
+Task("Agent 2", "Second task...", "agent-type")
+Task("Agent 3", "Third task...", "agent-type")
+```
+
 ## Always Fetch URLs When Provided
 
 **CRITICAL**: When a user provides a URL in their message, **ALWAYS** use the Fetch tool to retrieve and analyze the content before proceeding. This ensures you have the most current and accurate information to assist effectively. **Fetch URLs even if they seem familiar or if you think you know the content.**
@@ -41,5 +60,6 @@ mcp__perplexity-mcp__perplexity_search_web
 
 ## Git Actions
 
-- Always fetch GitHub PRs with the `gh` command line instead of fetching
-- Always use short git commit messages (less than 75 chars)
+- You MUST ALWAYS fetch GitHub PRs with the `gh` command line instead of fetching
+- You MUST  ALWAYS uses `--repo` flag with `gh` to ensure compatibility with both GitHub.com and GitHub Enterprise instances
+- You MUST ALWAYS use short git commit messages (less than 75 chars)
