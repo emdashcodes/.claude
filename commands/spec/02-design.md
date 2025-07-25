@@ -12,18 +12,26 @@ The design document should be based on the requirements document, so ensure it e
 ## Research Methodology
 
 - Create a research plan and track it with the TodoRead and TodoWrite tools
-- Ultrathink when planning your research
-- Fetch all web links provided and analyze them using WebFetch, do not rely on internal knowledge alone
-- Use web search to search the web for trusted sources
-- If local file paths are provided you SHOULD read and analyze **ALL** provided files
-- You SHOULD spawn multiple **CONCURRENT** sub agents to help you research
-- You can spawn upwards of 100 **CONCURRENT** agents so make sure to use them
-- Sub agents SHOULD be activated with `ultrathink`.
-- Sub agents SHOULD NOT write any files
-- Compare information from multiple sources to ensure accuracy
-- Synthesize findings from all sources
-- Prepare a comprehensive report with proper citations
-- If sources come from Perplexity or task agent research, **DO NOT** just cite the agents themselves. You **MUST** provide the sources (URLs, files) provided to you by Perplexity and the sub agents. Ask all sub agents to cite their sources
+- Identify key research areas needed for the design:
+  - External research: patterns, best practices, security considerations (use `researcher`)
+  - Internal research: existing codebase patterns, similar implementations, conventions (use `codebase-researcher`)
+- Spawn researcher agents to investigate each area:
+
+  ```python
+  # Example: Spawn research agents for different aspects - ALL IN ONE MESSAGE
+  # {full_context} includes: requirements, feature description, codebase info, design constraints
+  Task("Research authentication patterns", "Research modern authentication patterns for {feature-type}. {full_context}. Save to .claude/research/{feature-name}-design/", "researcher")
+  Task("Research security best practices", "Research security considerations for {feature-type}. {full_context}. Save to .claude/research/{feature-name}-design/", "researcher")
+  Task("Research performance optimization", "Research performance patterns for {feature-type}. {full_context}. Save to .claude/research/{feature-name}-design/", "researcher")
+  Task("Analyze existing patterns", "Analyze how similar features are implemented in our codebase. {full_context}. Save to .claude/research/{feature-name}-design/", "codebase-researcher")
+  ```
+
+- **ALWAYS spawn research agents CONCURRENTLY in a SINGLE MESSAGE**
+- Research agents will create comprehensive documentation in `.claude/research/{feature-name}-design/`
+- Read and synthesize the research findings
+- Reference specific research documents in your design decisions
+- Cite research files using relative paths and [index] notation (e.g., `See: .claude/research/{feature-name}-design/authentication-patterns.md`)
+- Cite URLs using [index] notation
 
 When you or the sub agents use web search you SHOULD use the SIFT method:
 
@@ -32,23 +40,52 @@ When you or the sub agents use web search you SHOULD use the SIFT method:
 - **Find**: Locate better/corroborating sources
 - **Trace**: Follow information to its original source
 
+## Automatic Quality Improvement Process
+
+Before presenting the design to the user:
+
+1. Generate initial design document based on requirements and research
+2. Run spec-reviewer agent to validate the design:
+
+   ```python
+   # {full_context} includes: requirements, design draft, research findings, codebase patterns, any user context
+   Task(
+       description="Review design draft",
+       prompt="Review the design.md for {feature-name}. {full_context}. Focus on technical feasibility, requirement coverage, and completeness. Save review to .claude/specs/{feature-name}/reviews/design-review.md (overwrite if exists)",
+       subagent_type="spec-reviewer"
+   )
+   ```
+
+3. Read the review and if issues are found, automatically fix them:
+   - Address ALL CRITICAL issues
+   - Fix IMPORTANT issues where clear guidance is provided
+   - Keep track of MINOR issues to mention to user
+4. If changes were made, run spec-reviewer again to verify fixes
+5. Only present the cleaned-up, validated version to the user
+
 ## Constraints
 
 - You MUST create spec files using the following path pattern: `.claude/specs/{feature_name}/design.md`
 - You MUST identify areas where research is needed based on the feature requirements
-- You MUST conduct research and build up context in the conversation thread
-- You SHOULD NOT create separate research files, but instead use the research as context for the design and implementation plan
+- You SHOULD spawn researcher agents to create comprehensive research documentation in `.claude/research/{feature-name}-design/`
+- You MUST reference and cite the research files in your design document
 - You MUST summarize key findings that will inform the feature design
-- You MUST cite sources, including source files and any relevant links
+- You MUST cite sources, including research documents, source files, and any relevant links
 - You MUST create a detailed design document at the appropriate spec path
 - You MUST incorporate research findings directly into the design process
 - You MUST include the following sections in the design document:
   - Overview
+  - Research Summary (with links to full research documents)
   - Architecture
   - Components and Interfaces
   - Data Models
   - Error Handling
   - Tests
+- The Research Summary section should:
+  - Briefly summarize key findings from each research document
+  - Link to the full research files in `.claude/research/{feature-name}-design/`
+  - Properly cite research files using [index] notation
+  - Explain how research informed design decisions
 - You SHOULD include diagrams or visual representations when appropriate (use Mermaid for diagrams if applicable)
 - You MUST ensure the design addresses all feature requirements identified during the clarification process
 - You SHOULD highlight design decisions and their rationales

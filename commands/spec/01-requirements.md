@@ -1,6 +1,6 @@
 ---
 description: Spec: Requirements Gathering
-allowed-tools: Read, Write, Edit, MultiEdit, Glob, Grep, LS
+allowed-tools: Read, Write, Edit, MultiEdit, Glob, Grep, LS, Task
 ---
 
 # Spec: Requirements Gathering
@@ -43,10 +43,33 @@ EARS categorizes requirements into five types, each with a specific template:
 - **Example**: "Where two-factor authentication is enabled, the system shall require a verification code after password entry"
 - **Use for**: Feature toggles, configuration-dependent behavior, optional modules
 
+## Automatic Quality Improvement Process
+
+Before presenting requirements to the user:
+
+1. Generate initial requirements draft based on user's input
+2. Run spec-reviewer agent to validate the draft:
+
+   ```python
+   # {full_context} includes: feature description, codebase info, any user context, etc
+   Task(
+       description="Review requirements draft",
+       prompt="Review the requirements.md for {feature-name}. {full_context}. Focus on EARS compliance, completeness, and clarity. Save review to .claude/specs/{feature-name}/reviews/requirements-review.md (overwrite if exists)",
+       subagent_type="spec-reviewer"
+   )
+   ```
+
+3. Read the review and if issues are found, automatically fix them:
+   - Address ALL CRITICAL issues
+   - Fix IMPORTANT issues where clear guidance is provided
+   - Keep track of MINOR issues to mention to user
+4. If changes were made, run spec-reviewer again to verify fixes
+5. Only present the cleaned-up, validated version to the user
+
 ## Constraints
 
 - You MUST create spec files using the following path pattern: `.claude/specs/{feature_name}/requirements.md`
-- You MUST generate first draft of the requirements document based on the user's rough idea WITHOUT asking sequential questions first
+- You MUST follow the automatic quality improvement process before showing requirements to the user
 - You MUST format the initial requirements.md document with:
   - A clear introduction section that summarizes the feature
   - A hierarchical numbered list of requirements where each contains:
@@ -59,7 +82,8 @@ EARS categorizes requirements into five types, each with a specific template:
       - Use Optional Feature for configurable functionality
       - You MUST NOT include the pattern name in the requirement description
 - You SHOULD consider edge cases, user experience, technical constraints, and success criteria in the initial requirements
-- After updating the requirement document, you MUST ask the user IN CHAT "Do the requirements look good? If so, we can move on to the design."
+- After the automatic quality improvement process, present the polished requirements to the user
+- THEN ask the user IN CHAT "Do the requirements look good? If so, we can move on to the design."
 - You MUST make modifications to the requirements document if the user requests changes or does not explicitly approve
 - You MUST NOT include any questions in the requirements document itself
 - You MUST ask for explicit approval after every iteration of edits to the requirements document
@@ -70,7 +94,9 @@ EARS categorizes requirements into five types, each with a specific template:
 - You SHOULD suggest specific areas where the requirements might need clarification or expansion
 - You MAY ask targeted questions about specific aspects of the requirements that need clarification
 - You MAY suggest options when the user is unsure about a particular aspect
-- Ask the user to proceed to the design phase after the user accepts the requirements
+- After the user approves the requirements, run the spec-reviewer agent to validate the requirements document again
+- Only ask the user to proceed to the design phase after both user approval AND spec-reviewer approval
+- If spec-reviewer finds issues, address them before proceeding
 
 ## Example Requirements Document Structure
 

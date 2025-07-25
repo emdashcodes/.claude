@@ -1,62 +1,131 @@
 ---
-description: Conduct comprehensive research on a topic and prepare a detailed report
-allowed-tools: WebFetch, mcp__perplexity-mcp__perplexity_search_web, Read, Glob, Grep, Task, TodoRead, TodoWrite, LS, Write, Edit, MultiEdit, NotebookRead, NotebookEdit, Bash
+description: Complete comprehensive deep research
+allowed-tools: Task, mcp__perplexity-mcp__perplexity_search_web, Read, Glob, Grep, Task, TodoWrite, LS
 ---
 
-# Research Request
+# Deep Research
 
-You are conducting deep comprehensive research on the topic specified in the user's request.
-Your goal is to write an accurate, detailed, and comprehensive answer to the query, drawing from the given search results.
+Invokes the researcher agent to conduct comprehensive research on the specified topic(s).
 
-Key Instructions:
+## Instructions
 
-- Write in an unbiased and journalistic tone
-- Cite search results using [index] notation
-- Answer only the last Query using provided search results
+Parse the user's input and identify research angles:
 
-## Research Methodology
+- **ALWAYS think in terms of multiple concurrent agents**
+- Even for a "single" topic, consider breaking it into multiple research angles
+- For explicitly multiple topics (semicolons, "and", or lists), spawn agents for each
+- **ALWAYS SPAWN AGENTS CONCURRENTLY IN A SINGLE MESSAGE**
+- If necessary, do an initial search to gather more context before spawning agents
 
-- Create a research plan and track it with the TodoRead and TodoWrite tools
-- Ultrathink when planning your research
-- Fetch all web links provided and analyze them using WebFetch, do not rely on internal knowledge alone
-- Use web search to search the web for trusted sources
-- If local file paths are provided, read and analyze *ALL** provided files
-- Spawn multiple **CONCURRENT** sub agents to help you research
-- You can spawn upwards of 100 **CONCURRENT** agents so use them as needed
-- Sub agents can also be activated with `ultrathink`
-- Sub agents SHOULD NOT write any files
-- Compare information from multiple sources to ensure accuracy
-- Synthesize findings from all sources
-- Prepare comprehensive report with proper citations
+Process:
 
-When you or your sub agents use web search, use the SIFT method:
+1. Create a master folder for the research theme
+2. **Spawn multiple research-analyst agents concurrently** for different angles/topics
+3. Each agent handles its own research independently (and can spawn its own sub-agents)
+4. Create a master synthesis report combining all findings
 
-- **Stop**: Pause before accepting information (ultrathink)
-- **Investigate**: Research the source's credibility
-- **Find**: Locate better/corroborating sources
-- **Trace**: Follow information to its original source
+### Research Execution (Always Multiple Agents)
 
-## Deliverables
+Even for a single topic, spawn multiple agents for different angles.
 
-### Document Format
+Provide as much context as possible from the user request and your understanding of the research topic to the sub-agents.
 
-- Executive summary (2-3 paragraphs)
-- Detailed findings organized by topic/theme
-- Key insights and recommendations if applicable
-- Areas requiring further investigation (if any)
-- Source citations with URLs OR local file paths and access dates
-- If research document are provided in multiple files, create a sub folder including a README with a table of contents linking to sub files
+```python
+# Example: User asks "Research React state management"
+# Break into multiple research angles - ALL IN ONE MESSAGE:
+Task("Research technical aspects", "Research React state management technical implementation and architecture.  {full_context}. Save to .claude/research/react-state-management/technical-analysis/", "research-analyst")
+Task("Research best practices", "Research React state management patterns and best practices. {full_context}. Save to .claude/research/react-state-management/best-practices/", "research-analyst")
+Task("Research performance", "Research performance implications of different React state management approaches. {full_context}. Save to .claude/research/react-state-management/performance/", "research-analyst")
 
-### Citation Requirements
+# If you come across code repositories, you can also clone a repository to `.claude/research/.scratch/` and then spawn **CONCURRENT** `codebase-research` agents for deep code analysis across local source code repos
+Task("Analyze the state implementation", "Research the local state design of the current codebase. {full_context}. Save to .claude/research/react-state-management/local-implementation/", "codebase-researcher")
+```
 
-Cite sources using [index] notation inline with sources provided at the end of the report. Cite all sources including local files with line numbers.
+### Multiple Topic Research
 
-If sources come from Perplexity or task agent research, **DO NOT** just cite the agents themselves. You **MUST** provide the sources (URLs, files) provided to you by Perplexity and the sub agents. Ask all sub agents to cite their sources as well.
+**CRITICAL: ALL RESEARCH AGENTS MUST BE SPAWNED CONCURRENTLY IN A SINGLE MESSAGE!**
 
-### Summary
+1. First, create a master research folder with a descriptive name
+2. **SPAWN ALL RESEARCH AGENTS CONCURRENTLY** - Use multiple Task invocations in a **SINGLE RESPONSE**
+3. After all agents complete, create a master report that:
+   - Synthesizes findings across all topics
+   - Identifies common themes and patterns
+   - Highlights contrasts and comparisons
+   - Provides consolidated recommendations
+   - Links to individual topic reports
 
-Provide the user a through summary of the research report once you are finished.
+**NEVER spawn agents sequentially - ALWAYS spawn them CONCURRENTLY for maximum performance!**
 
-## Additional User Context
+Example structure for multiple topics:
+
+```
+.claude/research/
+├── authentication-comparison/           # Master folder
+│   ├── README.md                       # Master synthesis report
+│   ├── oauth2-implementation/          # Individual topic
+│   ├── jwt-best-practices/            # Individual topic
+│   └── webauthn-adoption/             # Individual topic
+```
+
+For the master report, analyze all sub-reports and create:
+
+- Executive summary across all topics
+- Comparative analysis section
+- Common patterns and themes
+- Consolidated recommendations
+- Links to detailed individual reports
+- Citations
+
+## Examples
+
+**Single topic input:** "Modern authentication patterns"
+
+- Break into angles: implementation, security, best practices, comparisons
+- Spawn 4+ concurrent agents for comprehensive coverage
+
+**Multiple topics input:** "OAuth2 implementation; JWT best practices; WebAuthn adoption"
+
+- Spawn agents for each topic AND consider angles within each
+- Could result in 9-12 concurrent agents for thorough research
+
+**Listed topics input:** "Research 1) React performance optimization 2) Bundle size reduction 3) Code splitting strategies"
+
+- Each numbered topic gets multiple agents for different angles
+- Could result in 9-15 concurrent agents for complete analysis
+
+**Always optimize for parallelism and comprehensive coverage!**
+
+## Master Synthesis Template
+
+After all agents complete, create `.claude/research/{master-topic-slug}/README.md` with:
+
+```markdown
+# Research Synthesis: {Master Topic Name}
+
+## Executive Summary
+[Cross-topic insights and key findings]
+
+## Individual Research Topics
+- [Topic 1](./topic-1-slug/README.md)
+- [Topic 2](./topic-2-slug/README.md)
+- [Topic 3](./topic-3-slug/README.md)
+
+## Comparative Analysis
+[Compare and contrast findings across topics]
+
+## Common Themes
+[Patterns that emerged across multiple topics]
+
+## Consolidated Recommendations
+[Synthesized recommendations based on all research]
+
+## Conclusion
+[Final thoughts tying everything together]
+
+## Citations
+[List of all citations used in the research]
+```
+
+## User Request
 
 $ARGUMENTS

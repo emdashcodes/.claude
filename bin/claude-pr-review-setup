@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# PR Review Setup Script
+# Usage: pr-review-setup.sh <pr-number> <repo-url> [repo-name] [pr-slug]
+# Example: pr-review-setup.sh 123 https://github.com/org/repo agenttic fix-bug-in-auth
+
+# Don't exit on error immediately - let's handle errors gracefully
+set +e
+
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <pr-number> <repo-url> [repo-name] [pr-slug]"
+    echo "Example: $0 123 https://github.com/org/repo agenttic fix-bug-in-auth"
+    exit 1
+fi
+
+PR_NUMBER="$1"
+REPO_URL="$2"
+REPO_NAME="${3:-repo}"
+PR_SLUG="${4:-pr-$PR_NUMBER}"
+
+WORKING_DIR=$(pwd)
+REVIEW_DIR="$WORKING_DIR/.claude/reviews/.scratch/pr-review-$REPO_NAME-$PR_NUMBER-$PR_SLUG"
+
+echo "Setting up PR review for #$PR_NUMBER..."
+echo "Working directory: $WORKING_DIR"
+echo "Review directory: $REVIEW_DIR"
+
+# Create directories
+mkdir -p "$WORKING_DIR/.claude/reviews"
+mkdir -p "$REVIEW_DIR"
+
+# Get PR info and write to pretty-printed JSON file
+echo "Fetching PR info..."
+echo "Running: gh pr view $PR_NUMBER --repo $REPO_URL --json ..."
+if ! gh pr view "$PR_NUMBER" --repo "$REPO_URL" --json title,body,files,number,additions,deletions,changedFiles,reviews,comments,author,headRefName,baseRefName | jq '.' > "$REVIEW_DIR/pr-info.json"; then
+    echo "❌ Failed to fetch PR info. Check your GitHub Enterprise authentication:"
+    echo "   gh auth login --hostname github.a8c.com"
+    exit 1
+fi
+
+# Extract base branch from PR info
+BASE_BRANCH=$(jq -r '.baseRefName' "$REVIEW_DIR/pr-info.json")
+HEAD_BRANCH=$(jq -r '.headRefName' "$REVIEW_DIR/pr-info.json")
+
+# Save branch info
+echo "Base: $BASE_BRANCH" > "$REVIEW_DIR/branches.txt"
+echo "Head: $HEAD_BRANCH" >> "$REVIEW_DIR/branches.txt"
+
+# Get PR diff and write directly to file
+echo "Fetching PR diff..."
+gh pr diff "$PR_NUMBER" --repo "$REPO_URL" > "$REVIEW_DIR/pr.diff"
+
+# Get detailed comments if any (write to file)
+echo "Fetching comments..."
+gh pr view "$PR_NUMBER" --repo "$REPO_URL" --comments > "$REVIEW_DIR/comments.txt" || echo "No comments yet" > "$REVIEW_DIR/comments.txt"
+
+# Get commits directly from GitHub API (works regardless of local checkout state)
+echo "Fetching commits..."
+gh pr view "$PR_NUMBER" --repo "$REPO_URL" --json commits | jq -r '.commits[] | "\(.oid) \(.messageHeadline)"' > "$REVIEW_DIR/commits.txt"
+
+# Get the latest commit hash for the PR (for line references) from the PR info
+# Extract the head commit SHA from the commits we just fetched
+HEAD_COMMIT=$(gh pr view "$PR_NUMBER" --repo "$REPO_URL" --json commits | jq -r '.commits[-1].oid')
+echo "$HEAD_COMMIT" > "$REVIEW_DIR/head-commit.txt"
+
+echo "✅ PR review setup complete!"
+echo "Context files created in: $REVIEW_DIR"
+echo "- pr-info.json (PR metadata)"
+echo "- pr.diff (code changes)"
+echo "- comments.txt (existing comments)"
+echo "- commits.txt (commit history)"
+echo "- branches.txt (base and head branches)"
+echo "- head-commit.txt (latest commit hash)"
+echo ""
+echo "Ready to spawn review agents with context from: $REVIEW_DIR"

@@ -1,6 +1,6 @@
 ---
 description: Spec: Create Implementation Task List
-allowed-tools: Bash, Read, Write, Edit, MultiEdit, Glob, Grep, LS
+allowed-tools: Bash, Read, Write, Edit, MultiEdit, Glob, Grep, LS, Task
 ---
 
 # Spec: Create Implementation Task List
@@ -8,6 +8,29 @@ allowed-tools: Bash, Read, Write, Edit, MultiEdit, Glob, Grep, LS
 After the user approves the Design, create an actionable implementation plan with a checklist of coding tasks based on the requirements and design.
 
 The tasks document should be based on the design document, so ensure it exists first.
+
+## Automatic Quality Improvement Process
+
+Before presenting the implementation plan to the user:
+
+1. Generate initial task list based on design and requirements
+2. Run spec-reviewer agent to validate the implementation plan:
+
+   ```python
+   # {full_context} includes: requirements, design, task list draft, codebase info, any user context
+   Task(
+       description="Review implementation plan",
+       prompt="Review the tasks.md for {feature-name}. {full_context}. Focus on task atomicity, coverage, dependencies, and alignment with design. Save review to .claude/specs/{feature-name}/reviews/tasks-review.md (overwrite if exists)",
+       subagent_type="spec-reviewer"
+   )
+   ```
+
+3. Read the review and if issues are found, automatically fix them:
+   - Address ALL CRITICAL issues
+   - Fix IMPORTANT issues where clear guidance is provided
+   - Keep track of MINOR issues to mention to user
+4. If changes were made, run spec-reviewer again to verify fixes
+5. Only present the cleaned-up, validated version to the user
 
 ## Constraints
 
@@ -62,6 +85,27 @@ The tasks document should be based on the design document, so ensure it exists f
 - You MUST continue the feedback-revision cycle until explicit approval is received.
 - You MUST stop once the task document has been approved.
 - You MUST make sure that all three spec files are present and in-sync before finishing this step
+
+## Final Comprehensive Review
+
+After user approval of the implementation plan:
+
+1. Run a final comprehensive spec review across all documents:
+
+   ```python
+   # {full_context} includes: ALL spec documents, codebase context, user requirements, approval history
+   Task(
+       description="Final spec review",
+       prompt="Review the complete spec for {feature-name} (requirements.md, design.md, tasks.md). {full_context}. Check for cross-document consistency, completeness, and readiness for implementation. Save final review to .claude/specs/{feature-name}/reviews/final-review.md (overwrite if exists)",
+       subagent_type="spec-reviewer"
+   )
+   ```
+
+2. Read the final review and inform the user of the overall spec status
+3. If the spec is APPROVED, celebrate with the user and note that implementation can begin
+4. If issues are found, work with the user to address them in the appropriate document(s)
+
+## Important Guidelines
 
 **Important: This workflow is ONLY for creating design and planning artifacts. The actual implementation of the feature will be done through a separate workflow.**
 
