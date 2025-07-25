@@ -63,6 +63,7 @@
     "additionalDirectories": [
       "/Users/emdash/Grimoire",
       "/Users/emdash/Desktop",
+      "/Users/emdash/Screenshots",
       "/Users/emdash/Documents",
       "/Users/emdash/Dev",
       "/Users/emdash/.claude",
@@ -124,5 +125,6 @@
         ]
       }
     ]
-  }
+  },
+  "model": "opus"
 }
