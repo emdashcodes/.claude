@@ -10,6 +10,7 @@ Share, fork, copy parts of, and customize this configuration to build your own s
 - **Custom Slash Commands** - Specialized commands for task management, research, git operations, and more
 - **Automation Hooks** - Automated workflows powered by Claude Code's hook system
 - **Smart Wrapper** - Auto-injects additional system prompt + optional menu mode for session selection
+- **Memory System** - Local LLM-powered contextual memory with automatic injection
 - **Utility Scripts** - Additional scripts to help with common workflows
 - **Obsidian Integration** - Includes specific commands for working with Obsidian vaults
 - **Settings** - My personal settings for Claude Code
@@ -23,8 +24,15 @@ Share, fork, copy parts of, and customize this configuration to build your own s
 ├── EXAMPLE-PROMPT.md      # Auto-injected system prompt template for others to customize (copy to PROMPT.md)
 ├── example.vault.json     # Example vault configuration (copy to vault.json)
 ├── settings.json          # Claude Code configuration
+├── memory.jsonl           # Shared memory storage (knowledge graph)
 ├── commands/              # Custom slash commands
 ├── hooks/                 # Automation hooks
+├── memory/                # Memory system components
+│   ├── README.md          # Memory system documentation
+│   ├── bin/               # Memory scripts
+│   │   ├── memory-classifier  # LLM classifier script
+│   │   └── memory-search      # MCPHost search script
+│   └── utils/             # Shared utilities
 ├── bin/                   # Additional utility scripts (add to your PATH)
 │   └── claude-sysinfo     # System info utility for secure command permissions
 └── local/
