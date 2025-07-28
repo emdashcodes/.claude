@@ -1,0 +1,22 @@
+{
+  "specs_path": ".claude/specs",
+  "default_status": "draft",
+  "allowed_statuses": ["draft", "approved", "in_progress", "completed"],
+  "scratch_folder": "scratch",
+  "agent_settings": {
+    "coder": {
+      "strict_mode": true,
+      "allow_extras": false
+    },
+    "implementation_reviewer": {
+      "strict_mode": true,
+      "allow_suggestions_beyond_spec": false
+    },
+    "documentor": {
+      "update_readme": true,
+      "update_claude_md": true,
+      "cleanup_scratch": true,
+      "reset_tasks": true
+    }
+  }
+}

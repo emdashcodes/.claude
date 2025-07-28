@@ -51,10 +51,10 @@ Before presenting requirements to the user:
 2. Run spec-reviewer agent to validate the draft:
 
    ```python
-   # {full_context} includes: feature description, codebase info, any user context, etc
+   # {full_context} includes: feature description, codebase info, requirements document, user constraints
    Task(
-       description="Review requirements draft",
-       prompt="Review the requirements.md for {feature-name}. {full_context}. Focus on EARS compliance, completeness, and clarity. Save review to .claude/specs/{feature-name}/reviews/requirements-review.md (overwrite if exists)",
+       description="Review requirements spec",
+       prompt="Review the requirements.md for {feature-name}. {full_context}. Focus on EARS compliance, completeness, clarity, and edge case coverage.",
        subagent_type="spec-reviewer"
    )
    ```
@@ -83,19 +83,19 @@ Before presenting requirements to the user:
       - You MUST NOT include the pattern name in the requirement description
 - You SHOULD consider edge cases, user experience, technical constraints, and success criteria in the initial requirements
 - After the automatic quality improvement process, present the polished requirements to the user
-- THEN ask the user IN CHAT "Do the requirements look good? If so, we can move on to the design."
+- THEN ask the user IN CHAT "Do the requirements look good? If so, we can move on to creating the implementation tasks."
 - You MUST make modifications to the requirements document if the user requests changes or does not explicitly approve
 - You MUST NOT include any questions in the requirements document itself
 - You MUST ask for explicit approval after every iteration of edits to the requirements document
-- You MUST NOT proceed to the design document until receiving clear approval (such as "yes", "approved", "looks good", etc.)
+- You MUST NOT proceed to the tasks document until receiving clear approval (such as "yes", "approved", "looks good", etc.)
 - You MUST continue the feedback-revision cycle until explicit approval is received
-- You MUST check if a design.md already exists for this feature and warn the user if changes to requirements may impact the existing design
-- When modifying existing requirements, you MUST note which sections of the design document may need updates and ask the user if they would like to update those sections
+- You MUST check if a plan.md exists and has "approved" status before generating requirements
+- When modifying existing requirements, you MUST ensure they align with the approved plan
 - You SHOULD suggest specific areas where the requirements might need clarification or expansion
 - You MAY ask targeted questions about specific aspects of the requirements that need clarification
 - You MAY suggest options when the user is unsure about a particular aspect
 - After the user approves the requirements, run the spec-reviewer agent to validate the requirements document again
-- Only ask the user to proceed to the design phase after both user approval AND spec-reviewer approval
+- Only ask the user to proceed to the tasks phase after both user approval AND spec-reviewer approval
 - If spec-reviewer finds issues, address them before proceeding
 
 ## Example Requirements Document Structure

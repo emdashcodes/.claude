@@ -1,26 +1,68 @@
 ---
-description: Spec: Task Execution
+description: Spec: Task Execution - Single Task
 allowed-tools: Read, Write, Edit, MultiEdit, Glob, Grep, LS, TodoRead, TodoWrite, Task, WebFetch, mcp__perplexity-mcp__perplexity_search_web, NotebookRead, NotebookEdit
 ---
 
-# Spec: 04. Task Execution
+# Spec: 04. Task Execution - Single Task
 
-Follow these instructions for user requests related to spec tasks. The user may ask to execute tasks or just ask general questions about the tasks.
+Follow these instructions for executing a single spec task. This command uses the new coder agent for implementation.
 
 ## Executing Instructions
 
-- Before executing any tasks, ALWAYS ensure you have read the specs from the appropriate path recently:  `.claude/specs/{feature_name}/`
-- You MUST read ALL spec files (requirements.md, design.md and tasks.md) directly and NOT with a Task sub agent
-- Executing tasks without reading the requirements or design will lead to inaccurate implementations
-- Look at all of the task details in the task list
-- If the requested task has sub-tasks, always start with the sub tasks
-- Only focus on ONE task at a time. Do not implement functionality for tasks not requested by the user
-- Verify your implementation against any requirements specified in the task or its details
-- Once you complete the requested task, stop and let the user review. DO NOT just proceed to the next task in the list
-- If the user doesn't specify which task they want to work on, look at the task list for that spec and make a recommendation on the next task to execute
-- You MUST mark a task as completed in the `tasks.md` file when you have completed it (in addition to TodoWrite)
+### 1. Read Spec Files
 
-Remember, it is VERY IMPORTANT that you only execute one task at a time and work on the tasks queued for you. Don't automatically continue to the next set of tasks without the user asking you to do so.
+Before executing any tasks, ALWAYS read ALL spec files directly:
+- `.claude/specs/{feature_name}/plan.md` - Understand the overall goal
+- `.claude/specs/{feature_name}/requirements.md` - Know what to build  
+- `.claude/specs/{feature_name}/tasks.md` - See task details
+
+Note: Read these yourself, not through a Task agent.
+
+### 2. Create Scratch Folder
+
+Create the scratch folder for agent communication:
+```bash
+mkdir -p .claude/specs/{feature_name}/scratch
+```
+
+### 3. Spawn Coder Agent
+
+Launch the coder agent for the specified task:
+```python
+Task(
+    description=f"Implement task {task_number}",
+    prompt=f"You are implementing task {task_number} from the spec at {spec_path}. Focus ONLY on this task and its subtasks. Complete everything before stopping. Use scratch/README.md for notes.",
+    subagent_type="coder"
+)
+```
+
+### 4. Review Implementation
+
+After coder completes:
+```python
+Task(
+    description="Review implementation",
+    prompt=f"Review the implementation of task {task_number} at {spec_path}. Verify it matches the spec requirements exactly. Write review to scratch/REVIEW.md.",
+    subagent_type="implementation-reviewer"
+)
+```
+
+### 5. Handle Review Outcome
+
+- If APPROVED: Mark task as complete in tasks.md
+- If NEEDS REVISION: 
+  - Show user the review
+  - Ask if they want automatic fixes
+  - If yes, spawn coder again with review feedback
+  - Repeat review cycle
+
+### 6. Clean Up (Optional)
+
+If this is a standalone task (not part of a sequence):
+- Remove scratch folder
+- Inform user task is complete
+
+Remember: Only execute ONE task at a time. Let the user review before proceeding to the next task.
 
 ## Task Questions
 
