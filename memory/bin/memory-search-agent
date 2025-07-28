@@ -1,0 +1,16 @@
+#!/usr/bin/env adascript script
+---
+model: "ollama:qwen3:8b"
+mcpServers:
+  memory:
+    transport: "stdio"
+    command: ["npx", "-y", "mcp-knowledge-graph", "--memory-path", "${env://HOME}/.claude/memory.jsonl"]
+    allowedTools: ["memory__read_graph", "memory__search_nodes", "memory__open_nodes"]
+---
+Extract key terms from the user prompt and search for each one separately using memory__search_nodes. 
+For example: "Em's projects" → search for "Em" first, then look for project information in the results.
+For "my" questions, search for "Em" since that is the user's name.
+
+Prompt:
+
+${USER_PROMPT}

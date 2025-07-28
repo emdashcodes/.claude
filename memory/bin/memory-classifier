@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Claude Memory Classifier using Ollama
+# Quickly classifies if a prompt needs memory context
+
+set -euo pipefail
+
+# Source configuration
+source "${HOME}/.claude/memory/utils/config.sh"
+
+# Source JSON extraction utility
+source "${HOME}/.claude/memory/utils/json-extract.sh"
+
+# Source Ollama API utility
+source "${HOME}/.claude/memory/utils/ollama-api.sh"
+
+# Source debug utility
+source "${HOME}/.claude/memory/utils/debug-log.sh"
+
+# Read prompt from argument or stdin
+if [ $# -eq 0 ]; then
+    INPUT=$(cat)
+else
+    INPUT="$*"
+fi
+
+# Check if input is JSON (from hook) or plain text
+if echo "$INPUT" | jq -e '.prompt' >/dev/null 2>&1; then
+    # Extract prompt from JSON
+    PROMPT=$(echo "$INPUT" | jq -r '.prompt')
+else
+    # Use input as-is
+    PROMPT="$INPUT"
+fi
+
+# System prompt for classification
+SYSTEM_PROMPT='You are a memory classifier bot. Your ONLY job is to output JSON.
+
+Consider if the prompt references: past conversations, preferences, specific projects/people/systems, or building on previous work.
+
+CRITICAL: Output ONLY this JSON structure. No other text, no offers to help, no explanations:
+{
+  "needs_memory": boolean,
+  "confidence": 0-1,
+  "reason": "one line explanation"
+}'
+
+FULL_PROMPT="$SYSTEM_PROMPT
+
+User prompt to analyze: $PROMPT"
+
+# Log command if debug mode is on
+debug_log "Classifier using model: $MEMORY_CLASSIFIER_MODEL"
+debug_log "Full prompt: $FULL_PROMPT"
+
+# Execute classification using Ollama
+if [ "${MEMORY_HOOK_DEBUG:-false}" = "true" ]; then
+    # Capture stderr to variable for logging
+    RESPONSE=$(ollama_generate "$MEMORY_CLASSIFIER_MODEL" "$FULL_PROMPT" 0.1 2>&1)
+    OLLAMA_EXIT=$?
+
+    # Log any stderr output that might be mixed in
+    if [ $OLLAMA_EXIT -ne 0 ]; then
+        debug_log "Ollama command failed with exit code: $OLLAMA_EXIT"
+        debug_log "Ollama error output: $RESPONSE"
+    fi
+else
+    RESPONSE=$(ollama_generate "$MEMORY_CLASSIFIER_MODEL" "$FULL_PROMPT" 0.1 2>/dev/null)
+fi
+
+# Log response if debug mode is on
+debug_log "Ollama raw response: $RESPONSE"
+
+# Extract the response content
+CONTENT=$(ollama_extract_response "$RESPONSE")
+
+if [ -n "$CONTENT" ] && [ "$CONTENT" != "null" ]; then
+    if JSON_CONTENT=$(extract_json "$CONTENT"); then
+        echo "$JSON_CONTENT"
+    else
+        debug_log "Failed to extract valid JSON from: $CONTENT"
+        echo '{"needs_memory": false, "confidence": 0, "reason": "Failed to parse response"}'
+    fi
+else
+    debug_log "Failed to extract content from response"
+    echo '{"needs_memory": false, "confidence": 0, "reason": "Classification failed"}'
+fi

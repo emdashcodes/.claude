@@ -1,0 +1,12 @@
+mcpServers:
+  memory:
+    command: "sh"
+    args: ["-c", "npx -y mcp-knowledge-graph --memory-path ~/.claude/memory.jsonl"]
+    transport: "stdio"
+    allowedTools:
+      - "memory__read_graph"
+      - "memory__search_nodes"
+      - "memory__open_nodes"
+
+provider: "ollama"
+EOF < /dev/null

@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Wrapper for memory-search that strips thinking tags from output
+# while preserving them in debug logs
+
+set -euo pipefail
+
+# Redirect all stderr to log file if debug is enabled
+if [ "${MEMORY_HOOK_DEBUG:-false}" = "true" ]; then
+    exec 2>>"${MEMORY_HOOK_LOG:-/tmp/claude-memory-hook.log}"
+fi
+
+# Source configuration and utilities
+source "${HOME}/.claude/memory/utils/config.sh"
+source "${HOME}/.claude/memory/utils/debug-log.sh"
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MEMORY_SEARCH_SCRIPT="${SCRIPT_DIR}/memory-search-agent"
+
+# Use adascript
+ADASCRIPT="adascript"
+
+# Check if adascript is available
+if ! command -v adascript >/dev/null 2>&1; then
+    echo "Error: adascript not found in PATH" >&2
+    exit 1
+fi
+
+# Parse arguments
+MODEL="${MEMORY_SEARCH_MODEL:-qwen2.5:3b}"
+ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --model)
+            MODEL="$2"
+            shift 2
+            ;;
+        *)
+            ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Execute memory search and capture output
+debug_log "Running memory search with model: $MODEL"
+debug_log "Arguments: ${ARGS[*]}"
+
+# Run adascript and capture full output (stderr to log file)
+FULL_OUTPUT=$("$ADASCRIPT" script "$MEMORY_SEARCH_SCRIPT" "${ARGS[@]}" 2>>"${MEMORY_HOOK_LOG:-/tmp/claude-memory-hook.log}") || {
+    EXIT_CODE=$?
+    debug_log "Memory search failed with exit code: $EXIT_CODE"
+    echo "$FULL_OUTPUT"
+    exit $EXIT_CODE
+}
+
+# Log full output including thinking tags
+if [ "${MEMORY_HOOK_DEBUG:-false}" = "true" ]; then
+    debug_log "=== FULL OUTPUT WITH THINKING TAGS ==="
+    debug_log "$FULL_OUTPUT"
+    debug_log "=== END FULL OUTPUT ==="
+fi
+
+# Strip thinking tags from output
+# This regex removes <think>...</think> blocks including multiline ones
+CLEANED_OUTPUT=$(echo "$FULL_OUTPUT" | perl -0pe 's/<think>.*?<\/think>\s*//gs')
+
+# Also remove any trailing % that sometimes appears
+CLEANED_OUTPUT=$(echo "$CLEANED_OUTPUT" | sed 's/%$//')
+
+# Output cleaned result
+echo "$CLEANED_OUTPUT"
