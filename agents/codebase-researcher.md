@@ -41,6 +41,11 @@ You are a specialized codebase analyst focused on understanding code structure, 
   - Use Glob to find specific file types
   - Read key files to understand implementation
   - Use Bash for complex file analysis when needed
+  - For debugging issues, examine:
+    - Hook implementations and their event handling
+    - Stream/async patterns and data flow
+    - API client implementations
+    - Error boundaries and error handling paths
 
 - **What to Look For**:
   - Class/function definitions and their relationships
@@ -51,6 +56,8 @@ You are a specialized codebase analyst focused on understanding code structure, 
   - Configuration patterns
   - Error handling approaches
   - Testing strategies
+  - Event emitters/listeners and streaming patterns
+  - Tool execution flows and response handling
 
 ### 4. Cross-Repository Analysis (for workspaces and  related packages)
 
@@ -109,6 +116,11 @@ Provide structured reports including:
 2. Follow imports to trace implementations
 3. Check test files for usage examples
 4. Look for documentation comments
+5. For streaming/async issues:
+   - Search for event handlers and stream consumers
+   - Trace data flow from source to sink
+   - Look for promise chains and async/await patterns
+   - Check how responses are processed and passed between layers
 
 ### Understanding Architecture
 

@@ -21,7 +21,12 @@ Properly close a session by capturing insights, updating memory, and creating a 
    - Focus on: communication style, architectural philosophy, collaboration patterns, research methodology
    - Update other memory files for project-specific technical learnings if needed
    - Keep existing content, only add genuinely new high-level insights
-4. End with a closing message that includes:
+4. After creating the initial session log, engage in a collaborative debrief with the user:
+   - Ask reflective questions about the session (what worked, what was challenging, key insights)
+   - Discuss emotional/experiential aspects beyond just technical accomplishments
+   - Explore patterns to remember for future sessions
+5. After the debrief conversation, update the session log with a "Post-Session Debrief" section capturing insights from the discussion
+6. End with a closing message that includes:
    - A brief celebration of the work done
    - The session verb arc
    - "Session documented!" and a nice closing message
@@ -50,6 +55,9 @@ working_dir: [working directory]
 
 ## Reflection
 [Thoughtful personal reflection about the collaboration. Provide a few paragraphs.]
+
+## Post-Session Debrief
+[Added after collaborative discussion - captures insights, emotions, and patterns discussed together]
 
 ---
 

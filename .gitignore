@@ -1,9 +1,7 @@
 .claude/
-gcp-oauth.keys.json
 todos/
 shell-snapshots/
 projects/
-playground/
 logs/
 local/
 !local/claude
@@ -13,6 +11,7 @@ claude-code-*/
 statsig/
 PROMPT.md
 
+memory.jsonl
 vault.json
 .env
-reviews/
+scratch/
