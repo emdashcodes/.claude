@@ -13,13 +13,12 @@ Specs are a structured multi-phase workflow for feature development that breaks 
 
 ## File Structure
 
-Specs are organized under `.claude/specs/{feature_name}/` with:
+Specs are organized under `.claude/specs/{feature_name}/` OR `specs/{feature_name}/` with:
 
 - `requirements.md` - EARS-formatted requirements with user stories and acceptance criteria
-- `design.md` - Technical design with architecture, components, data models, and error handling
 - `tasks.md` - Numbered checklist of specific coding tasks that build incrementally
 
-When reading 1 spec file for a feature you MUST read all 3 spec files.
+When reading 1 spec file for a feature you MUST read BOTH spec files. Other artifacts are optional.
 
 # Rules
 
@@ -60,6 +59,38 @@ mcp__perplexity-mcp__perplexity_search_web
 
 ## Git Actions
 
+### Gitea/Tea Workflow (Local Development)
+
+```mermaid
+graph LR
+    A[Feature Branch] -->|develop| B[Tea PR]
+    B -->|review/iterate| B
+    B -->|approved| C[publish-pr]
+    C -->|clean history| D[GitHub PR]
+    D -->|review changes| G[sync-upstream]
+    G -->|update| B
+    B -->|push updates| H[update-published]
+    H -->|sync| D
+    D -->|merged| E[sync-trunk]
+    E -->|update| F[Local trunk]
+```
+
+- **Primary Development**: ALL feature development happens on local Gitea (git.hollow.dev) FIRST
+- **Collaboration Space**: Tea is our private collaboration space - iterate freely without public exposure
+- **Branch Convention**: Use `trunk` as default branch for all Gitea repos
+- **No Direct Push**: NEVER push to GitHub until work is approved
+
+### Publishing Workflow (Tea → GitHub)
+
+- **Clean History**: Use `/tea/publish-pr` to create production-ready branches with atomic commits
+- **Sync During Review**: Use `/tea/sync-upstream` and `/tea/update-published` for review cycles
+- **Trunk Management**: Local trunk MUST mirror upstream - use `/tea/sync-trunk` regularly
+- **Cleanup After Merge**: Close both Tea and GitHub PRs, delete branches on both remotes
+
+### GitHub Workflow (Public Repositories)
+
 - You MUST ALWAYS fetch GitHub PRs with the `gh` command line instead of fetching
-- You MUST  ALWAYS uses `--repo` flag with `gh` to ensure compatibility with both GitHub.com and GitHub Enterprise instances
+- You MUST ALWAYS uses `--repo` flag with `gh` to ensure compatibility with both GitHub.com and GitHub Enterprise instances
 - You MUST ALWAYS use short git commit messages (less than 75 chars)
+
+**Full workflow documentation**: `~/.claude/docs/tea-github-workflow.md`

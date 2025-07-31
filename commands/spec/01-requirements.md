@@ -1,5 +1,5 @@
 ---
-description: Spec: Requirements Gathering
+description: Spec 01: Requirements Gathering
 allowed-tools: Read, Write, Edit, MultiEdit, Glob, Grep, LS, Task
 ---
 
@@ -7,7 +7,19 @@ allowed-tools: Read, Write, Edit, MultiEdit, Glob, Grep, LS, Task
 
 Your goal is to generate an initial set of requirements in EARS (Easy Approach to Requirements Syntax) format based on the feature idea, then iterate with the user to refine them until they are complete and accurate.
 
-Get a brief understanding of the codebase from README.MD and any other related documentation but don't focus on code exploration in this phase. Instead, just focus on writing requirements which will later be turned into a design.
+Get a brief understanding of the codebase from README files and any other related documentation but don't focus on code exploration in this phase. Instead, just focus on writing requirements which will later be turned into implementation tasks.
+
+## Requirements Frontmatter
+
+All requirements.md files must include frontmatter with:
+
+- `version`: Spec version (default: 1.0)
+- `status`: Current status - one of:
+  - `draft` - Initial state when creating requirements
+  - `approved` - After user approves requirements
+  - `implementing` - During implementation phase
+  - `completed` - After all tasks implemented
+  - `rejected` - If spec is abandoned
 
 ## EARS (Easy Approach to Requirements Syntax) Overview
 
@@ -54,12 +66,12 @@ Before presenting requirements to the user:
    # {full_context} includes: feature description, codebase info, any user context, etc
    Task(
        description="Review requirements draft",
-       prompt="Review the requirements.md for {feature-name}. {full_context}. Focus on EARS compliance, completeness, and clarity. Save review to .claude/specs/{feature-name}/reviews/requirements-review.md (overwrite if exists)",
+       prompt="Review the requirements.md for {feature-name}. {full_context}. Focus on EARS compliance, completeness, and clarity. Return your findings categorized as CRITICAL, IMPORTANT, and MINOR issues.",
        subagent_type="spec-reviewer"
    )
    ```
 
-3. Read the review and if issues are found, automatically fix them:
+3. Based on the agent's response, if issues are found, automatically fix them:
    - Address ALL CRITICAL issues
    - Fix IMPORTANT issues where clear guidance is provided
    - Keep track of MINOR issues to mention to user
@@ -69,8 +81,18 @@ Before presenting requirements to the user:
 ## Constraints
 
 - You MUST create spec files using the following path pattern: `.claude/specs/{feature_name}/requirements.md`
+- You MUST include frontmatter in requirements.md with:
+
+  ```yaml
+  ---
+  version: 1.0
+  status: draft
+  ---
+  ```
+
 - You MUST follow the automatic quality improvement process before showing requirements to the user
 - You MUST format the initial requirements.md document with:
+  - Frontmatter as specified above
   - A clear introduction section that summarizes the feature
   - A hierarchical numbered list of requirements where each contains:
     - A user story in the format "As a [role], I want [feature], so that [benefit]"
@@ -83,24 +105,24 @@ Before presenting requirements to the user:
       - You MUST NOT include the pattern name in the requirement description
 - You SHOULD consider edge cases, user experience, technical constraints, and success criteria in the initial requirements
 - After the automatic quality improvement process, present the polished requirements to the user
-- THEN ask the user IN CHAT "Do the requirements look good? If so, we can move on to the design."
+- THEN ask the user IN CHAT "Do the requirements look good? If so, we can move on to creating the implementation tasks."
 - You MUST make modifications to the requirements document if the user requests changes or does not explicitly approve
 - You MUST NOT include any questions in the requirements document itself
 - You MUST ask for explicit approval after every iteration of edits to the requirements document
-- You MUST NOT proceed to the design document until receiving clear approval (such as "yes", "approved", "looks good", etc.)
+- You MUST NOT proceed to the implementation tasks until receiving clear approval (such as "yes", "approved", "looks good", etc.)
 - You MUST continue the feedback-revision cycle until explicit approval is received
-- You MUST check if a design.md already exists for this feature and warn the user if changes to requirements may impact the existing design
-- When modifying existing requirements, you MUST note which sections of the design document may need updates and ask the user if they would like to update those sections
+- You MUST check if a tasks.md already exists for this feature and warn the user if changes to requirements may impact the existing tasks
+- When modifying existing requirements, you MUST note which tasks may need updates and ask the user if they would like to update those tasks
 - You SHOULD suggest specific areas where the requirements might need clarification or expansion
 - You MAY ask targeted questions about specific aspects of the requirements that need clarification
 - You MAY suggest options when the user is unsure about a particular aspect
 - After the user approves the requirements, run the spec-reviewer agent to validate the requirements document again
-- Only ask the user to proceed to the design phase after both user approval AND spec-reviewer approval
+- Only ask the user to proceed to the task creation phase after both user approval AND spec-reviewer approval
+- When proceeding to tasks, update the frontmatter `status: approved`
 - If spec-reviewer finds issues, address them before proceeding
 
 ## Example Requirements Document Structure
 
-<example1>
 ### Example: User Authentication Feature
 
 **User Story**: As a user, I want to securely log into the system, so that I can access my personal data
@@ -111,9 +133,7 @@ Before presenting requirements to the user:
 2. When the user submits login credentials, the system shall validate them within 2 seconds
 3. When the user enters an incorrect password, the system shall increment the failed attempt counter
 4. If the user exceeds 5 failed login attempts, then the system shall lock the account for 15 minutes
-</example1>
 
-<example2>
 ### Example: File Upload Feature
 
 **User Story**: As a content creator, I want to upload images to my posts, so that I can share visual content
@@ -125,9 +145,7 @@ Before presenting requirements to the user:
 3. While a file is uploading, the system shall display a progress indicator
 4. If the upload fails due to network error, then the system shall allow retry with resume capability
 5. Where image optimization is enabled, the system shall compress images to under 1MB while maintaining 80% quality
-</example2>
 
-<example3>
 ### Example: Search Functionality
 
 **User Story**: As a user, I want to search for products by name, so that I can quickly find what I need
@@ -137,4 +155,3 @@ Before presenting requirements to the user:
 1. When the user types in the search box, the system shall display suggestions after 3 characters
 2. When the user submits a search query, the system shall return results within 500ms
 3. The system shall support wildcard searches using * and ? characters
-</example3>
