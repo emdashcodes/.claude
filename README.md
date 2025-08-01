@@ -53,6 +53,12 @@ the wrapper automatically appends your `PROMPT.md` content using `--append-syste
 - Choose between: Start new / Resume previous / Continue last conversation
 - Only affects bare `claude` - all other commands work normally
 
+#### Permissions Override
+
+- Set `CLAUDE_DANGEROUSLY_SKIP_PERMISSIONS=1` to automatically add `--dangerously-skip-permissions` flag
+- Applies to all Claude Code invocations (interactive, continue, resume, and scripting modes)
+- Use with caution - bypasses Claude Code's security restrictions
+
 ## Obsidian Integration
 
 The `vault.json` file configures paths to your knowledge vault. These paths are provided to specific Claude Code commands to load relevant files:
@@ -125,29 +131,41 @@ These hooks are triggered automatically by [Claude Code's hook system](https://d
 
 ### Plan Management Hooks
 
-Two hooks work together to enhance Claude's planning workflow:
+Two hooks work together to integrate planning with the spec workflow:
 
 #### `plan-extractor.sh`
 
 - **Triggered**: When Claude uses the `exit_plan_mode` tool to present a plan
-- **Purpose**: Automatically captures and saves plan content as draft files
+- **Purpose**: Creates plan.md in spec folder structure for spec generation
 - **Features**:
-  - Extracts plan content from Claude's hook JSON data
-  - Generates intelligent filenames based on plan title + session ID
-  - Adds comprehensive metadata (session, tmux, directory, timestamp)
-  - Saves to configurable plans directory with "draft" status
-- **Output**: `"Plan Title (12345678).md"` in configured plans_path
+  - Uses Claude Code SDK to generate kebab-case slug from title
+  - Creates spec folder: `{spec_path}/{slug}/`
+  - Saves plan with minimal frontmatter (session_id, status: draft)
+  - Integrates with spec workflow for requirements generation
+- **Configuration**: Uses `spec.json` hierarchy (project → global → default)
+- **Output**: `{spec_path}/{slug}/plan.md`
 
 #### `plan-cleanup.sh`
 
 - **Triggered**: When user approves a plan after `exit_plan_mode`
-- **Purpose**: Creates approved plan copy and cleans up draft files
+- **Purpose**: Overwrites draft with approved version and triggers spec workflow
 - **Features**:
-  - Creates approved version in `/Accepted` subdirectory
-  - Updates plan status to "approved" in frontmatter
-  - Removes all draft plan files for the session to prevent clutter
-  - Maintains organized plan archive structure
-- **Output**: Approved plans in `[plans_path]/Accepted/`
+  - Completely overwrites plan.md with approved content
+  - Updates status to "approved" in frontmatter
+  - Prompts for spec generation workflow
+  - Ready for agent-based requirements generation
+- **Output**: Updated plan.md with approved status
+
+### Plan Mode and Spec Integration
+
+The plan mode now integrates directly with the spec workflow:
+
+1. **Automatic Spec Creation**: Approved plans trigger spec generation
+2. **Agent-Based Workflow**: Specialized agents handle each phase
+3. **Configurable Locations**: Use `spec.json` to customize spec folder
+4. **Progressive Enhancement**: Plans → Requirements → Tasks → Implementation
+
+See [docs/plan-mode-spec-integration.md](docs/plan-mode-spec-integration.md) for details.
 
 #### Plan Workflow
 

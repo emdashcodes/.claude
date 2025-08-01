@@ -1,6 +1,6 @@
 ---
 description: Add Gitea remote to existing GitHub repository
-allowed-tools: Bash(git remote:*), Bash(git config:*), Bash(tea repos:*), Bash(tea repo create:*), Bash(git push:*)
+allowed-tools: Bash(git remote:*), Bash(git config:*), Bash(tea repos:*), Bash(tea repo create:*), Bash(git push:*), Bash
 ---
 
 # Setup Gitea Remote

@@ -1,6 +1,6 @@
 ---
 description: Create a new Gitea-only repository
-allowed-tools: Bash(git init:*), Bash(git remote:*), Bash(tea repo create:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Write
+allowed-tools: Bash(git init:*), Bash(git remote:*), Bash(tea repo create:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Write, Bash
 ---
 
 # Create New Gitea Repository

@@ -1,7 +1,7 @@
 ---
 name: codebase-researcher
 description: Specialized agent for deep codebase analysis across folders, repositories, packages, and workspaces
-tools: Read, Glob, Grep, LS, Bash, TodoWrite, TodoRead
+tools: Read, Glob, Grep, LS, Bash, TodoWrite, TodoRead, WebFetch, mcp__perplexity-mcp__perplexity_search_web
 ---
 
 # Codebase Research Agent
