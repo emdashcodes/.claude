@@ -15,12 +15,13 @@
 #    - Provides interactive selection: new/resume/continue conversations
 #
 # Usage:
-#   claude                      → Interactive mode with system prompt (or menu if enabled)
-#   claude -c                   → Continue with system prompt
-#   claude -r                   → Resume with system prompt
-#   claude -p "query"           → Fast scripting mode (no system prompt)
-#   CLAUDE_USE_MENU=1 claude    → Enable menu for plain "claude" commands
-#   CLAUDE_WRAPPER_DEBUG=1 claude → Enable debug output
+#   claude                                        → Interactive mode with system prompt (or menu if enabled)
+#   claude -c                                     → Continue with system prompt
+#   claude -r                                     → Resume with system prompt
+#   claude -p "query"                             → Fast scripting mode (no system prompt)
+#   CLAUDE_USE_MENU=1 claude                      → Enable menu for plain "claude" commands
+#   CLAUDE_WRAPPER_DEBUG=1 claude                 → Enable debug output
+#   CLAUDE_DANGEROUSLY_SKIP_PERMISSIONS=1 claude  → Add --dangerously-skip-permissions flag
 
 REAL_CLAUDE="$HOME/.claude/local/node_modules/.bin/claude"
 
@@ -34,6 +35,7 @@ done
 # Simple settings - edit below or set via environment variables
 DEBUG=${CLAUDE_WRAPPER_DEBUG:-0}
 USE_MENU=${CLAUDE_USE_MENU:-0}
+SKIP_PERMISSIONS=${CLAUDE_DANGEROUSLY_SKIP_PERMISSIONS:-0}
 
 debug() {
     if [[ $DEBUG -eq 1 ]]; then
@@ -118,6 +120,13 @@ merge_system_prompt() {
         args+=(--append-system-prompt "$our_prompt_content")
         debug "Added system prompt"
     fi
+
+    # Add dangerous permissions flag if enabled
+    if [[ $SKIP_PERMISSIONS -eq 1 ]]; then
+        args+=(--dangerously-skip-permissions)
+        debug "Added --dangerously-skip-permissions flag"
+    fi
+
     exec "$REAL_CLAUDE" "${args[@]}"
 }
 
@@ -130,6 +139,11 @@ elif should_inject_prompt "$@"; then
     # Inject/merge the system prompt
     merge_system_prompt "$@"
 else
-    # Pass through without modification
-    exec "$REAL_CLAUDE" "$@"
+    # Pass through, but add permissions flag if needed
+    if [[ $SKIP_PERMISSIONS -eq 1 ]]; then
+        debug "Added --dangerously-skip-permissions flag (passthrough)"
+        exec "$REAL_CLAUDE" "$@" --dangerously-skip-permissions
+    else
+        exec "$REAL_CLAUDE" "$@"
+    fi
 fi

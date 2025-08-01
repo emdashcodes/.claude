@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "cleanupPeriodDays": 30,
   "includeCoAuthoredBy": false,
   "permissions": {
@@ -96,7 +97,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "exit_plan_mode",
+        "matcher": "ExitPlanMode",
         "hooks": [
           {
             "type": "command",
@@ -112,11 +113,31 @@
             "command": "~/.claude/hooks/reddit-fetch.sh"
           }
         ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/spec-workflow-enforcer.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/slash-command-handler.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "exit_plan_mode",
+        "matcher": "ExitPlanMode",
         "hooks": [
           {
             "type": "command",
@@ -127,6 +148,6 @@
     ]
   },
   "feedbackSurveyState": {
-    "lastShownTime": 1753929447532
+    "lastShownTime": 1754012801463
   }
 }

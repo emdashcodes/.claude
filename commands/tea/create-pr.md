@@ -1,6 +1,6 @@
 ---
 description: Create a PR on Gitea using tea CLI
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git push:*), Bash(tea pr list:*), Bash(tea pr create:*), Bash(tea pr view:*), Bash(tea repos:*), Bash(git status), Bash(git diff), Bash(git branch), Bash(git log), Bash(git remote -v)
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git push:*), Bash(tea pr list:*), Bash(tea pr create:*), Bash(tea pr view:*), Bash(tea issue edit:*), Bash(tea repos:*), Bash(git status), Bash(git diff), Bash(git branch), Bash(git log), Bash(git remote -v)
 ---
 
 # PR Request (Gitea/tea)
@@ -30,10 +30,14 @@ Create a comprehensive Pull Request on your local Gitea instance using tea CLI.
 3. **Push to Gitea**:
    - Push the current branch to the 'local' remote (or whichever remote points to git.hollow.dev)
    - Use: `git push local <branch-name>`
+   - Note: The git remote should use `emdash@git.hollow.dev` not `emdashcodes@`
 
 4. **Create PR with tea**:
    - Detect the repository from remotes or ask user
    - Use: `tea pr create --repo <owner>/<repo> --title "<title>" --description "<description>" --base <base-branch> --head <feature-branch>`
+   - **Important**: If the description is long or doesn't appear in the PR, you can update it after creation using:
+     `tea issue edit <pr-number> --repo <owner>/<repo> --description "<full-description>"`
+   - This works because Gitea treats PRs as a special type of issue internally
 
 5. **PR Draft Structure**:
 
@@ -60,6 +64,17 @@ Create a comprehensive Pull Request on your local Gitea instance using tea CLI.
 - Use clear, professional language
 - Assume the reviewer has context about the project but not about your specific changes
 - After creating, provide the PR URL from git.hollow.dev
+
+## Troubleshooting
+
+**PR created without description?**
+- Use `tea issue edit <pr-number> --repo <owner>/<repo> --description "<description>"` to update it
+- This works because Gitea treats PRs as issues internally
+
+**SSH authentication issues?**
+- Ensure SSH config uses correct username (e.g., `emdash` not `emdashcodes`)
+- Check `~/.ssh/config` for the git.hollow.dev entry
+- Verify git remote uses correct format: `emdash@git.hollow.dev:owner/repo.git`
 
 ## Additional User Context
 
