@@ -1,15 +1,22 @@
 ---
-description: Spec 04: Mark as Complete and Generate Living Documentation
+description: Spec Completion - Mark as Complete and Generate Living Documentation
 allowed-tools: Read, Write, Edit, MultiEdit, Glob, Grep, LS, Bash, Task
 ---
 
-# Spec: 04. Complete and Document
+# Spec: Completion and Documentation
 
 Mark a spec as complete and transform it into living documentation that reflects the actual implementation.
 
 ## Instructions
 
 When the user wants to mark a spec as complete, follow these steps:
+
+### 0. Find Available Specs
+
+Check what specs are available:
+!`~/.claude/helpers/list-specs.sh`
+
+If the user doesn't specify which spec, list available options and ask which one to complete.
 
 ### 1. Verify Completion
 
@@ -45,8 +52,9 @@ When the user wants to mark a spec as complete, follow these steps:
 
    ```text
    .claude/specs/{feature_name}/
+   ├── plan.md          (with status: accepted)
    ├── requirements.md  (with status: completed)
-   ├── tasks.md        (all tasks marked complete)
+   ├── tasks.md         (all tasks marked complete)
    └── architecture.md  (actual implementation)
    ```
 
