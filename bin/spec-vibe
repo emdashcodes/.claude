@@ -1,0 +1,50 @@
+#!/bin/bash
+# Spec Vibe Check - Disable workflow enforcement for current session
+
+echo "🔓 Disabling spec workflow enforcement for this session..."
+
+# Get session ID from environment
+SESSION_ID="$CLAUDE_SESSION_ID"
+
+if [ -z "$SESSION_ID" ]; then
+    echo "   Error: No session ID available"
+    echo "   Cannot create session-specific lock"
+    exit 1
+fi
+
+# Create state directory if it doesn't exist
+STATE_DIR=".claude/state"
+mkdir -p "$STATE_DIR" 2>/dev/null
+
+# Create session-specific spec disable lock file
+DISABLE_FILE="$STATE_DIR/spec-disabled-$SESSION_ID"
+touch "$DISABLE_FILE"
+echo "   Created spec disable lock for session: $SESSION_ID"
+
+# Find and remove all plan approval state files
+if [ -d "$STATE_DIR" ]; then
+    STATE_FILES=$(find "$STATE_DIR" -name "plan-approved-*" 2>/dev/null)
+    
+    if [ -n "$STATE_FILES" ]; then
+        COUNT=0
+        for state_file in $STATE_FILES; do
+            if [ -f "$state_file" ]; then
+                rm "$state_file"
+                echo "   Removed: $(basename "$state_file")"
+                COUNT=$((COUNT + 1))
+            fi
+        done
+        
+        echo ""
+        echo "✅ Cleared $COUNT state file(s)"
+    else
+        echo "   No active enforcement state found"
+    fi
+else
+    echo "   No state directory found"
+fi
+
+echo ""
+echo "🎯 Spec workflow enforcement disabled for this session"
+echo "   You can now use tools freely without spec workflow blocking"
+echo "   Your actual specs remain unchanged - only enforcement is disabled"
