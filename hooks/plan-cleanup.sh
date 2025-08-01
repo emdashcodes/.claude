@@ -2,8 +2,8 @@
 # Claude Hook: Plan Cleanup and Approval Handler
 #
 # PURPOSE:
-#   Handles the final stage of plan workflow - approval and cleanup after user confirms a plan.
-#   Converts draft plans to approved status and removes temporary draft files.
+#   Handles the final stage of plan workflow - overwrites draft with approved version.
+#   Updates status to approved and prepares for spec generation workflow.
 #
 # TRIGGERED BY:
 #   Claude Code hook system after user approves a plan from exit_plan_mode
@@ -11,29 +11,34 @@
 #
 # FUNCTIONALITY:
 #   - Extracts approved plan content from hook JSON data
-#   - Creates approved version in /Accepted subdirectory with "approved" status
-#   - Cleans up all draft plan files for the session to prevent clutter
-#   - Maintains same filename format but moves to organized approval structure
+#   - Completely overwrites draft plan.md with approved version
+#   - Updates status to "approved"
+#   - Prompts for spec generation workflow
 #
 # WORKFLOW:
 #   1. plan-extractor.sh creates draft plan when exit_plan_mode is called
 #   2. User reviews and approves plan
-#   3. plan-cleanup.sh creates approved copy and cleans up drafts
+#   3. plan-cleanup.sh overwrites with approved version
+#   4. Spec generation workflow can begin
 #
 # CONFIGURATION:
-#   Requires vault.json with plans_path configured
-#   Example: {"plans_path": "~/Vault/Plans"}
+#   Uses spec.json hierarchy via spec-config.sh helper
 #
 # OUTPUT:
-#   - Approved plans in: [plans_path]/Accepted/
-#   - Removes draft files from: [plans_path]/
+#   - Overwrites plan.md in spec folder with approved version
+
+# Exit early if hooks are disabled
+if [ "$CLAUDE_DISABLE_HOOKS" = "1" ]; then
+    exit 0
+fi
+
 
 # Read all input
 JSON_DATA=$(cat)
 
+
 # Extract session_id and plan content
 SESSION_ID=$(echo "$JSON_DATA" | jq -r '.session_id' 2>/dev/null || echo "unknown-$(date +%s)")
-SHORT_SESSION_ID=${SESSION_ID:0:8}
 
 # Extract plan content for approved version
 PLAN_CONTENT=$(echo "$JSON_DATA" | jq -r '.tool_input.plan' 2>/dev/null)
@@ -46,62 +51,80 @@ if [ $? -ne 0 ] || [ -z "$PLAN_CONTENT" ] || [ "$PLAN_CONTENT" = "null" ]; then
     fi
 fi
 
-# Only create approved copy if we have valid plan content
+# Only process if we have valid plan content
 if [ -n "$PLAN_CONTENT" ] && [ "$PLAN_CONTENT" != "# Plan Content Not Found" ]; then
-    # Extract H1 title for filename
+    # Extract H1 title for slug generation
     H1_TITLE=$(echo -e "$PLAN_CONTENT" | grep -m1 '^# ' | sed 's/^# //' | head -1)
     if [ -z "$H1_TITLE" ]; then
         H1_TITLE="untitled-plan"
     fi
 
-    # Create clean filename
-    CLEAN_TITLE=$(echo "$H1_TITLE" | sed 's/[^a-zA-Z0-9 ]//g' | sed 's/ \+/ /g' | sed 's/^ \| $//g')
-    if [ -z "$CLEAN_TITLE" ]; then
-        CLEAN_TITLE="Untitled Plan"
+    # Get current directory name for context
+    CURRENT_DIR_NAME=$(basename "$(pwd)")
+
+    # Generate slug using Claude Code SDK with context (disable hooks to prevent recursion)
+    SLUG=$(CLAUDE_DISABLE_HOOKS=1 claude -p "Convert this title to a kebab-case slug suitable for a folder name. Current project/directory is '$CURRENT_DIR_NAME' so avoid repeating that. Banned characters: # ^ [ ] |. Return ONLY the slug, nothing else: $H1_TITLE" 2>/dev/null)
+
+    # Fallback if Claude fails
+    if [ -z "$SLUG" ] || [ "$SLUG" = "null" ]; then
+        # Manual slug generation as fallback
+        SLUG=$(echo "$H1_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/-\+/-/g' | sed 's/^-\|-$//g')
     fi
 
-    # Gather metadata for approved version
-    CURRENT_DIR=$(pwd)
-    TMUX_SESSION=""
-    if [ -n "$TMUX" ]; then
-        TMUX_SESSION=$(tmux display-message -p '#S' 2>/dev/null || echo "")
-    fi
-    CREATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%S%z")
+    # Clean up banned characters just in case
+    SLUG=$(echo "$SLUG" | sed 's/[#^\[\]|]//g')
 
-    # Create frontmatter for approved version
+    # Get spec path from configuration
+    SPEC_PATH=$(spec-config)
+    SPEC_FOLDER="$SPEC_PATH$SLUG"
+
+    # Create approved frontmatter
     APPROVED_FRONTMATTER="---
 session_id: \"$SESSION_ID\"
-tmux_session: $(if [ -n "$TMUX_SESSION" ]; then echo "\"$TMUX_SESSION\""; else echo "null"; fi)
-working_directory: \"$CURRENT_DIR\"
-created_at: \"$CREATED_AT\"
 status: \"approved\"
 ---
 "
 
-    # Get plans path from vault configuration
-    PLANS_PATH=$(cat ~/.claude/vault.json | jq -r '.plans_path')
-    PLANS_PATH=$(eval echo "$PLANS_PATH")  # Expand ~ and other variables
+    # Overwrite plan.md with approved version
+    echo -e "$APPROVED_FRONTMATTER$PLAN_CONTENT" > "$SPEC_FOLDER/plan.md"
 
-    # Create approved plans directory
-    mkdir -p "$PLANS_PATH/Accepted"
+    # Create state file for spec workflow enforcement
+    STATE_DIR=".claude/state"
+    mkdir -p "$STATE_DIR" 2>/dev/null
+    echo "$SPEC_FOLDER/plan.md" > "$STATE_DIR/plan-approved-$SESSION_ID"
 
-    # Create approved filename
-    APPROVED_FILENAME="$CLEAN_TITLE ($SHORT_SESSION_ID).md"
+    # Remove any existing vibe check disable for this session - new plan approval re-enables enforcement
+    rm -f "$STATE_DIR/spec-disabled-$SESSION_ID" 2>/dev/null
 
-    # Save approved plan
-    echo -e "$APPROVED_FRONTMATTER$PLAN_CONTENT" > "$PLANS_PATH/Accepted/$APPROVED_FILENAME"
-    echo "Approved plan saved to $PLANS_PATH/Accepted/$APPROVED_FILENAME"
-fi
+    # Clean up the pending marker if it exists
+    rm -f "$STATE_DIR/plan-approved-$SESSION_ID.pending" 2>/dev/null
 
-# Get plans path for cleanup (use same logic as above, but outside the if block)
-PLANS_PATH=$(cat ~/.claude/vault.json | jq -r '.plans_path')
-PLANS_PATH=$(eval echo "$PLANS_PATH")  # Expand ~ and other variables
-
-# Clean up ALL draft files for this session
-CLEANED_COUNT=$(find "$PLANS_PATH" -maxdepth 1 -name "* ($SHORT_SESSION_ID).md" -type f -delete -print | wc -l | tr -d ' ')
-
-if [ "$CLEANED_COUNT" -gt 0 ]; then
-    echo "Cleaned up $CLEANED_COUNT draft file(s) for session $SHORT_SESSION_ID"
+    echo "=================================================================================="
+    echo "PLAN APPROVED AND READY FOR SPEC GENERATION!"
+    echo "=================================================================================="
+    echo ""
+    echo "Plan Location: $SPEC_FOLDER/plan.md"
+    echo "Session ID: $SESSION_ID"
+    echo "Feature: $H1_TITLE"
+    echo "Status: APPROVED"
+    echo ""
+    echo "NEXT STEPS:"
+    echo "   1. Generate requirements from this approved plan"
+    echo "   2. Review and approve the requirements"
+    echo "   3. Generate implementation tasks"
+    echo "   4. Begin coding with /spec:workflow:implement"
+    echo ""
+    echo "TO CONTINUE SPEC WORKFLOW:"
+    echo "   Ask Claude: 'Generate requirements from the approved plan'"
+    echo "   Or manually run: Task(..., subagent_type='spec-requirements')"
+    echo ""
+    echo "Spec Directory Structure:"
+    echo "   $SPEC_FOLDER/"
+    echo "   ├── plan.md          [APPROVED]"
+    echo "   ├── requirements.md  [NEXT]"
+    echo "   └── tasks.md         [AFTER REQUIREMENTS]"
+    echo ""
+    echo "=================================================================================="
 else
-    echo "No draft files found to clean up for session $SHORT_SESSION_ID"
+    echo "No valid plan content found to approve"
 fi
