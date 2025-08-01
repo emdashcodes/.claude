@@ -1,0 +1,16 @@
+#!/bin/bash
+# Returns the configured spec path with proper hierarchy
+# Checks: project .claude/spec.json → global ~/.claude/spec.json → default
+
+if [ -f ".claude/spec.json" ]; then
+  SPEC_PATH=$(jq -r '.specs_path // ".claude/specs/"' .claude/spec.json)
+elif [ -f "$HOME/.claude/spec.json" ]; then
+  SPEC_PATH=$(jq -r '.specs_path // ".claude/specs/"' "$HOME/.claude/spec.json")
+else
+  SPEC_PATH=".claude/specs/"
+fi
+
+# Ensure path ends with slash
+[[ "${SPEC_PATH}" != */ ]] && SPEC_PATH="${SPEC_PATH}/"
+
+echo "$SPEC_PATH"
