@@ -52,18 +52,22 @@ EARS categorizes requirements into five types, each with a specific template:
 - **Template**: "When <trigger> the <system name> shall <system response>"
 - **Example**: "When the user submits a form, the system shall validate all required fields"
 - **Use for**: User interactions, system events, external triggers
+- **Important**: Don't repeat "When" in the requirement text. Write "When encountering X, the system shall..." not "When the system encounters X, the system shall..."
 
 ### 3. State-Driven Requirements (Active in Specific States)
 
-- **Template**: "While <in a specific state> the <system name> shall <system response>"
+- **Template**: "While <in a specific state> the <system name> shall <system response>" OR "Where <condition> the <system name> shall <system response>"
 - **Example**: "While the system is in maintenance mode, the system shall display a maintenance message to users"
-- **Use for**: Mode-dependent behaviors, conditional operations
+- **Example**: "Where files exceed 10MB, the system shall display a warning"
+- **Use for**: Mode-dependent behaviors, conditional operations, state-based rules
+- **Important**: "Where" is preferred for conditions/states, "While" for ongoing states
 
 ### 4. Unwanted Behavior Requirements (Error Handling)
 
 - **Template**: "If <unwanted condition>, then the <system name> shall <system response>"
 - **Example**: "If the database connection fails, then the system shall queue the transaction and retry every 30 seconds"
 - **Use for**: Error conditions, exception handling, failure recovery
+- **Important**: For simple error states, prefer "Where" pattern instead (e.g., "Where a file cannot be read, the system shall...")
 
 ### 5. Optional Feature Requirements (Conditional Features)
 
@@ -76,18 +80,14 @@ EARS categorizes requirements into five types, each with a specific template:
 After generating requirements.md, return these instructions:
 
 ```
-## Next Steps Required
+## Requirements Generated!
 
-1. **Review Requirements**: Please invoke spec-reviewer agent with this prompt:
-   "Review the requirements.md at {SPEC_PATH}. Focus on EARS compliance, completeness, and clarity. Return findings categorized as CRITICAL, IMPORTANT, and MINOR issues."
+Requirements have been created at: {SPEC_PATH}/requirements.md
 
-2. **If CRITICAL issues found**: Re-invoke spec-requirements agent to fix issues
+Please review the requirements directly. When you're satisfied with them, use:
+- `/spec:workflow:approve-requirements` to approve and proceed to tasks generation
 
-3. **If no CRITICAL issues**: Present requirements to user for approval
-
-4. **When user approves**: Update requirements.md status to "approved" and invoke spec-tasks agent
-
-Requirements generated at: {SPEC_PATH}/requirements.md
+The requirements are currently in 'draft' status and ready for your review.
 ```
 
 ## Constraints
@@ -102,7 +102,6 @@ Requirements generated at: {SPEC_PATH}/requirements.md
   ---
   ```
 
-- You MUST follow the automatic quality improvement process before showing requirements to the user
 - You MUST format the initial requirements.md document with:
   - Frontmatter as specified above
   - A clear introduction section that summarizes the feature
@@ -116,22 +115,13 @@ Requirements generated at: {SPEC_PATH}/requirements.md
       - Use Optional Feature for configurable functionality
       - You MUST NOT include the pattern name in the requirement description
 - You SHOULD consider edge cases, user experience, technical constraints, and success criteria in the initial requirements
-- After the automatic quality improvement process, present the polished requirements to the user
-- THEN ask the user IN CHAT "Do the requirements look good? If so, we can move on to creating the implementation tasks."
-- You MUST make modifications to the requirements document if the user requests changes or does not explicitly approve
+- You MUST present the requirements to the user for review after generation
 - You MUST NOT include any questions in the requirements document itself
-- You MUST ask for explicit approval after every iteration of edits to the requirements document
-- You MUST NOT proceed to the implementation tasks until receiving clear approval (such as "yes", "approved", "looks good", etc.)
-- You MUST continue the feedback-revision cycle until explicit approval is received
 - You MUST check if a tasks.md already exists for this feature and warn the user if changes to requirements may impact the existing tasks
 - When modifying existing requirements, you MUST note which tasks may need updates and ask the user if they would like to update those tasks
 - You SHOULD suggest specific areas where the requirements might need clarification or expansion
 - You MAY ask targeted questions about specific aspects of the requirements that need clarification
 - You MAY suggest options when the user is unsure about a particular aspect
-- After the user approves the requirements, run the spec-reviewer agent to validate the requirements document again
-- Only ask the user to proceed to the task creation phase after both user approval AND spec-reviewer approval
-- When proceeding to tasks, update the frontmatter `status: approved`
-- If spec-reviewer finds issues, address them before proceeding
 
 ## Example Requirements Document Structure
 
@@ -143,8 +133,8 @@ Requirements generated at: {SPEC_PATH}/requirements.md
 
 1. The system shall store passwords using bcrypt hashing with a minimum of 10 rounds
 2. When the user submits login credentials, the system shall validate them within 2 seconds
-3. When the user enters an incorrect password, the system shall increment the failed attempt counter
-4. If the user exceeds 5 failed login attempts, then the system shall lock the account for 15 minutes
+3. When entering an incorrect password, the system shall increment the failed attempt counter
+4. Where the user exceeds 5 failed login attempts, the system shall lock the account for 15 minutes
 
 ### Example: File Upload Feature
 
@@ -152,9 +142,9 @@ Requirements generated at: {SPEC_PATH}/requirements.md
 
 **Acceptance Criteria**:
 
-1. When the user selects a file, the system shall validate the file type is PNG, JPG, or GIF
-2. When the user uploads a file larger than 10MB, the system shall display a size limit error
-3. While a file is uploading, the system shall display a progress indicator
+1. When selecting a file, the system shall validate the file type is PNG, JPG, or GIF
+2. Where the uploaded file exceeds 10MB, the system shall display a size limit error
+3. While uploading a file, the system shall display a progress indicator
 4. If the upload fails due to network error, then the system shall allow retry with resume capability
 5. Where image optimization is enabled, the system shall compress images to under 1MB while maintaining 80% quality
 
@@ -164,6 +154,6 @@ Requirements generated at: {SPEC_PATH}/requirements.md
 
 **Acceptance Criteria**:
 
-1. When the user types in the search box, the system shall display suggestions after 3 characters
-2. When the user submits a search query, the system shall return results within 500ms
+1. When typing in the search box, the system shall display suggestions after 3 characters
+2. When submitting a search query, the system shall return results within 500ms
 3. The system shall support wildcard searches using * and ? characters
