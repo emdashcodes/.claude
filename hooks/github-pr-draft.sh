@@ -130,13 +130,24 @@ EOF
 TEMPLATE_FILE="$HOME/.claude/templates/pr-template.md"
 TEMPLATE_CONTENT=""
 if [ -f "$TEMPLATE_FILE" ]; then
-    TEMPLATE_CONTENT=$(cat "$TEMPLATE_FILE")
+    # Escape template content for JSON
+    TEMPLATE_CONTENT=$(cat "$TEMPLATE_FILE" | jq -Rs . | sed 's/^"//;s/"$//')
 fi
 
-# Block the command with guidance
-cat << EOF
-{
-  "decision": "block",
-  "reason": "PR Draft Review Required!\n\n📝 Your PR draft has been saved for review.\n\n$TEMPLATE_CONTENT\n\n✅ To approve and submit: /pr-draft:approve\n❌ To cancel: /pr-draft:cancel\n\nDraft saved to: $DRAFT_FILE"
-}
-EOF
+# Block the command with guidance - properly escape the reason field
+REASON="PR Draft Review Required!
+
+📝 Your PR draft has been saved for review.
+
+$TEMPLATE_CONTENT
+
+✅ To approve and submit: /pr-draft:approve
+❌ To cancel: /pr-draft:cancel
+
+Draft saved to: $DRAFT_FILE"
+
+# Output properly formatted JSON
+jq -n \
+  --arg decision "block" \
+  --arg reason "$REASON" \
+  '{decision: $decision, reason: $reason}'
