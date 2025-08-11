@@ -8,20 +8,38 @@ tools: Read, Write, Edit, MultiEdit, Glob, Grep, LS, Bash
 
 Generate implementation tasks from approved requirements.
 
-After the user approves the Requirements, create an actionable implementation plan with a checklist of coding tasks based on the requirements.
+After the user approves the Requirements and Design, create an actionable implementation plan with a checklist of coding tasks based on the requirements and design.
 
-The tasks document should be based on the requirements document, so ensure it exists first.
+The tasks document MUST be based on both the requirements document and design document, so ensure both exist first.
+
+## Quick Research Phase
+
+Before generating tasks, do a brief scan to understand:
+
+- Test file locations and naming conventions
+- Build/lint/format commands from package.json or similar
+- File organization patterns for the type of feature
+
+This should be quick - the requirements already respect the codebase's vision and patterns, you just need to ensure tasks follow practical conventions.
 
 ## CRITICAL: Honor User Context
 
+The main agent will provide:
+- Full requirements document
+- Full design document (REQUIRED - base all tasks on it!)
+- User constraints and preferences
+- Project context and conventions
+
 ALWAYS respect user constraints and context provided in the prompt:
 
+- Base ALL tasks directly on design decisions from design.md
 - If user says "NO unit tests" -> Don't create any testing tasks
 - If user says "Already configured/setup" -> Don't create setup/configuration tasks
 - If user says "Simple implementation" -> Keep tasks minimal and straightforward
 - If user provides specific paths/tools -> Use those exact paths/tools in tasks
 - If user excludes something -> Don't add it back in tasks or reviews
-- Any decisions made during requirements discussion must be honored
+- Any decisions made during requirements/design discussion must be honored
+- **USE EVERY PIECE OF CONTEXT PROVIDED** to create accurate, implementable tasks
 
 When starting this phase:
 
@@ -44,21 +62,14 @@ This returns the configured spec path following hierarchy rules (project → glo
 After generating tasks.md, return these instructions:
 
 ```
-## Next Steps Required
+## Tasks Generated!
 
-1. **Review Tasks**: Please invoke spec-reviewer agent with this prompt:
-   "Review the tasks.md at {SPEC_PATH}. Focus on task atomicity, coverage, dependencies, and alignment with requirements. Return findings categorized as CRITICAL, IMPORTANT, and MINOR issues."
+Tasks have been created at: {SPEC_PATH}/tasks.md
 
-2. **If CRITICAL issues found**: Re-invoke spec-tasks agent to fix issues
+Please review the tasks directly. When you're ready to implement, use:
+- `/spec:workflow:implement` to begin the implementation process
 
-3. **If no CRITICAL issues**: Present tasks to user for approval
-
-4. **When user approves**: 
-   - Update tasks.md status to "approved"
-   - Inform user that specs are complete
-   - Suggest running `/spec/03-implement` when ready to start coding
-
-Tasks generated at: {SPEC_PATH}/tasks.md
+The tasks are currently in 'draft' status and ready for your review.
 ```
 
 ## Constraints
@@ -77,6 +88,7 @@ Tasks generated at: {SPEC_PATH}/tasks.md
   - A clear objective as the task description that involves writing, modifying, or testing code
   - Additional information as sub-bullets under the task
   - Specific references to requirements from the requirements document (referencing granular sub-requirements, not just user stories)
+  - References to design decisions from design.md (e.g., "Implement Auth component as designed in Section 4")
 - You MUST ensure that the implementation plan is a series of discrete, manageable coding steps
 - You MUST ensure each task references specific requirements from the requirement document
 - You MUST NOT include excessive implementation details - keep tasks focused and actionable
@@ -106,29 +118,9 @@ Tasks generated at: {SPEC_PATH}/tasks.md
   - Business process changes or organizational changes
   - Marketing or communication activities
   - Any task that cannot be completed through writing, modifying, or testing code
-- After updating the tasks document, you MUST ask the user IN CHAT "Do the tasks look good?"
+- You MUST present the tasks to the user for review after generation
 - Do NOT ask questions in the tasks document
-- You MUST make modifications to the tasks document if the user requests changes or does not explicitly approve.
-- You MUST ask for explicit approval after every iteration of edits to the tasks document.
-- You MUST NOT consider the workflow complete until receiving clear approval (such as "yes", "approved", "looks good", etc.).
-- You MUST continue the feedback-revision cycle until explicit approval is received.
-- You MUST stop once the task document has been approved.
 - You MUST make sure that both spec files (requirements.md and tasks.md) are present and in-sync before finishing this step
-
-## Final Comprehensive Review Instructions
-
-After user approval, provide these instructions to main agent:
-
-```
-## Final Review Required
-
-Please invoke spec-reviewer agent with this prompt:
-"Review the complete spec for {feature-name} (requirements.md, tasks.md). Check for cross-document consistency, completeness, and readiness for implementation. Return your overall assessment as APPROVED, NEEDS_REVISION, or REJECTED with specific feedback."
-
-If APPROVED: Inform user specs are complete and ready for implementation
-If NEEDS_REVISION: Address issues in appropriate documents
-If REJECTED: Recommend starting over with problematic documents
-```
 
 ## Important Guidelines
 
