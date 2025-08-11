@@ -7,6 +7,16 @@ allowed-tools: Read, Task, TodoWrite, Bash
 
 This command implements ALL tasks in a feature's tasks.md file automatically using a coder-reviewer loop.
 
+## Spec Document Hierarchy
+
+The implementation follows a strict hierarchy of specifications:
+
+1. **requirements.md** - Defines WHAT to build (the goals)
+2. **design.md** - Defines HOW to build it (the blueprint)  
+3. **tasks.md** - Defines STEPS to build it (the checklist)
+
+All implementation MUST follow this hierarchy. The design is the contract between planning and implementation.
+
 ## Implementation Process
 
 When the user asks to implement a feature, follow these steps:
@@ -26,7 +36,8 @@ If the user doesn't specify which spec, list available options and ask which one
    ```python
    Task(
        description="Research current implementation status",
-       prompt="Research the current implementation status for {feature-name}. Check what's actually implemented vs what tasks.md says. Look for any incomplete work, TODO comments, or mismatches between documentation and code.",
+       # CRITICAL: Give MAXIMUM CONTEXT to accurately assess implementation state
+       prompt="Research the current implementation status for {feature-name}. Check what's actually implemented vs what tasks.md says. Look for any incomplete work, TODO comments, or mismatches between documentation and code. Full requirements: {full_requirements_content}. Full design: {full_design_content}. Full tasks list: {full_tasks_content}. Verify implementation aligns with design decisions. Provide detailed findings on what's actually implemented vs documented.",
        subagent_type="codebase-researcher"
    )
    ```
@@ -43,6 +54,7 @@ If the user doesn't specify which spec, list available options and ask which one
 
 - Get spec path: `SPEC_PATH=$(spec-config)`
 - Read `${SPEC_PATH}/{feature_name}/requirements.md` to understand the feature
+- Read `${SPEC_PATH}/{feature_name}/design.md` to understand design decisions
 - Update requirements.md frontmatter `status: implementing`
 - Read `${SPEC_PATH}/{feature_name}/tasks.md` to get the implementation tasks
 - **Group tasks into logical milestones** (3-7 tasks each)
@@ -52,7 +64,7 @@ If the user doesn't specify which spec, list available options and ask which one
   - Brief description of what tasks are in each milestone
   - Mark as high priority for active work tracking
   - **Format**: "Milestone X: [Name] (tasks Y-Z)" and "Milestone X: Code Review"
-- ALWAYS read BOTH files directly before starting each milestone
+- ALWAYS read ALL THREE spec files (requirements, design, tasks) directly before starting each milestone
 
 ### 2. Implement Tasks by Milestone
 
@@ -81,7 +93,32 @@ Group tasks into logical milestones and implement them in batches:
    ```python
    Task(
        description="Implement milestone: {milestone_name}",
-       prompt="Implement all tasks for milestone '{milestone_name}' from {feature-name}. Full requirements context: {full_requirements_content}. Milestone tasks: {milestone_tasks_list}. Complete all tasks in this milestone before stopping. Mark each completed task with [x] in tasks.md.",
+       # CRITICAL: Give MAXIMUM CONTEXT with DESIGN as primary guide
+       prompt="""Implement milestone '{milestone_name}' for {feature-name}.
+       
+       PRIMARY GUIDE - DESIGN DOCUMENT:
+       {full_design_content}
+       
+       REQUIREMENTS (for reference):
+       {full_requirements_content}
+       
+       TASKS TO IMPLEMENT:
+       {milestone_tasks_list_with_numbers}
+       
+       IMPLEMENTATION CONTEXT:
+       - Previous milestones completed: {previous_milestones_summary}
+       - Project conventions: {code_conventions}
+       - Technology stack: {tech_stack}
+       
+       CRITICAL INSTRUCTIONS:
+       1. Follow the DESIGN DOCUMENT as your primary guide
+       2. Implement exactly as specified in the design (architecture, components, patterns)
+       3. Reference design sections when implementing (e.g., "Implementing auth as per Design Section 3")
+       4. Complete ALL tasks in this milestone
+       5. Mark each completed task with [x] in tasks.md
+       6. Ensure integration with previously completed work
+       7. Your implementation MUST match the design specifications exactly
+       """,
        subagent_type="coder"
    )
    ```
@@ -93,7 +130,40 @@ Group tasks into logical milestones and implement them in batches:
    ```python
    Task(
        description="Review milestone: {milestone_name}",
-       prompt="Review the complete implementation of milestone '{milestone_name}' for {feature-name}. Full requirements context: {full_requirements_content}. Completed tasks: {completed_tasks}. Check that all milestone tasks are properly implemented, follow project conventions, and work together as a cohesive unit. Return APPROVED if milestone is complete, NEEDS_CHANGES with specific feedback if not.",
+       # CRITICAL: Review against DESIGN SPECIFICATIONS
+       prompt="""Review milestone '{milestone_name}' implementation for {feature-name}.
+       
+       REVIEW STANDARD - DESIGN DOCUMENT:
+       {full_design_content}
+       
+       REQUIREMENTS (for completeness check):
+       {full_requirements_content}
+       
+       COMPLETED TASKS TO VERIFY:
+       {milestone_tasks_list_with_numbers}
+       
+       IMPLEMENTATION CHANGES:
+       {git_diff_for_milestone}
+       
+       REVIEW CONTEXT:
+       - Previous milestones: {previous_milestones_summary}
+       - Project conventions: {code_conventions}
+       
+       REVIEW CRITERIA (based on design):
+       1. Implementation matches DESIGN SPECIFICATIONS exactly
+       2. Architecture follows design document (Section 3)
+       3. Components match design interfaces (Section 4)
+       4. Data models align with design (Section 5)
+       5. Error handling follows design strategy (Section 6)
+       6. Testing approach matches design (Section 7)
+       7. Security measures per design (Section 8)
+       8. Performance considerations implemented (Section 9)
+       9. All milestone tasks completed
+       10. Integration with previous milestones works
+       
+       Return APPROVED only if implementation matches design exactly.
+       Return NEEDS_CHANGES with specific references to design sections if not.
+       """,
        subagent_type="code-reviewer"
    )
    ```
@@ -133,6 +203,14 @@ Once all tasks are complete:
 
 ## Important Guidelines
 
+### Specs as Guiding Principles
+- **DESIGN.MD IS THE BLUEPRINT** - All implementation must match it exactly
+- Requirements define WHAT to build
+- Design defines HOW to build it
+- Tasks define the STEPS to build it
+- Every line of code should trace back to the design document
+
+### Implementation Process
 - Work through milestones sequentially
 - **Group related tasks into SMALL milestones (3-5 tasks ideal, 7 max)**
 - Complete entire milestones before moving to review phase
