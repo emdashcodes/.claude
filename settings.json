@@ -114,6 +114,10 @@
           {
             "type": "command",
             "command": "~/.claude/hooks/git-commit.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/github-pr-draft.sh"
           }
         ]
       }

@@ -8,7 +8,7 @@ Share, fork, copy parts of, and customize this configuration to build your own s
 ## Components
 
 - **Custom Slash Commands** - Specialized commands for task management, research, git operations, and more
-- **Automation Hooks** - Automated workflows powered by Claude Code's hook system
+- **Automation Hooks** - Automated workflows powered by Claude Code's hook system including PR draft review
 - **Smart Wrapper** - Auto-injects additional system prompt + optional menu mode for session selection
 - **Utility Scripts** - Additional scripts to help with common workflows
 - **Obsidian Integration** - Includes specific commands for working with Obsidian vaults
@@ -188,6 +188,34 @@ These hooks are triggered automatically by [Claude Code's hook system](https://d
   git commit -m "feat: this is a really long commit message that exceeds limit"  # Too long
   git commit -f -m "feat: force push"  # -f flag blocked
   ```
+
+### GitHub PR Draft Review Hook
+
+#### `github-pr-draft.sh`
+
+- **Triggered**: When running `gh pr create` command via Bash tool
+- **Purpose**: Enforces PR review workflow before submission to GitHub
+- **Features**:
+  - **Draft Review**: Blocks PR creation until explicitly approved
+  - **Template Guidance**: Provides structured PR template with sections for Why, How, and Testing Steps
+  - **Session Management**: Uses session-specific lock files with state tracking
+  - **Auto-cleanup**: Removes draft and lock files after successful PR submission
+- **Configuration**: `config/pr-draft-config.json`
+  ```json
+  {
+    "draft_dir": ".claude/drafts"
+  }
+  ```
+- **Workflow**:
+  1. When `gh pr create` is run, the command is blocked and draft is saved
+  2. User reviews the PR template guidelines
+  3. User runs `/pr-draft:approve` to approve the draft
+  4. User re-runs the original `gh pr create` command to submit
+  5. Draft and lock files are automatically cleaned up
+- **Commands**:
+  - `/pr-draft:approve` - Approve pending PR draft for submission
+  - `/pr-draft:cancel` - Cancel PR draft and remove files
+- **Template Location**: `templates/pr-template.md`
 
 
 ## Slash Commands

@@ -21,3 +21,15 @@ USER_PROMPT=$(echo "$JSON_DATA" | jq -r '.prompt // ""' 2>/dev/null)
 # if echo "$USER_PROMPT" | grep -q "^/spec:enforce"; then
     # spec-enforce
 # fi
+
+# Check for /pr-draft:approve command
+if echo "$USER_PROMPT" | grep -q "^/pr-draft:approve"; then
+    export CLAUDE_SESSION_ID="$SESSION_ID"
+    exec ~/.claude/helpers/pr-draft-approve.sh
+fi
+
+# Check for /pr-draft:cancel command
+if echo "$USER_PROMPT" | grep -q "^/pr-draft:cancel"; then
+    export CLAUDE_SESSION_ID="$SESSION_ID"
+    exec ~/.claude/helpers/pr-draft-cancel.sh
+fi
