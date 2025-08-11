@@ -37,13 +37,11 @@ if [ -f "$DRAFT_FILE" ]; then
 fi
 
 # Update lock status to approved
-jq '.status = "approved" | .approved_at = now | tostring' "$LOCK_FILE" > "$LOCK_FILE.tmp" && mv "$LOCK_FILE.tmp" "$LOCK_FILE"
+jq '.status = "approved" | .approved_at = now' "$LOCK_FILE" > "$LOCK_FILE.tmp" && mv "$LOCK_FILE.tmp" "$LOCK_FILE"
 
 echo ""
 echo "✅ PR draft APPROVED for session: $SESSION_ID"
 echo ""
-echo "📤 Now re-run your gh pr create command to submit the PR:"
-echo ""
-echo "   $COMMAND"
+echo "📤 Now re-run your gh pr create command to submit the PR."
 echo ""
 echo "The PR will be automatically submitted and the draft will be cleaned up."

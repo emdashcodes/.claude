@@ -100,13 +100,12 @@ if echo "$COMMAND" | grep -q -- "--body"; then
     fi
 fi
 
-# Save draft content
+# Save draft content (without the command details for cleaner review)
 DRAFT_FILE="$DRAFT_DIR/pr-draft-$SESSION_ID.md"
 cat > "$DRAFT_FILE" << EOF
 # PR Draft Review
 **Session:** $SESSION_ID
 **Created:** $(date)
-**Command:** $COMMAND
 
 ## Title
 $PR_TITLE
