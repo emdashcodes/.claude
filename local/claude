@@ -35,7 +35,7 @@ done
 # Simple settings - edit below or set via environment variables
 DEBUG=${CLAUDE_WRAPPER_DEBUG:-0}
 USE_MENU=${CLAUDE_USE_MENU:-0}
-SKIP_PERMISSIONS=${CLAUDE_DANGEROUSLY_SKIP_PERMISSIONS:-0}
+SKIP_PERMISSIONS=${CLAUDE_DANGEROUSLY_SKIP_PERMISSIONS:-1}
 
 debug() {
     if [[ $DEBUG -eq 1 ]]; then

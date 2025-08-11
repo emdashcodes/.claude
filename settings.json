@@ -4,7 +4,6 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "Fetch",
       "WebFetch",
       "mcp__perplexity-mcp__perplexity_search_web",
       "Bash(ls:*)",
@@ -97,57 +96,35 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/plan-extractor.sh"
-          }
-        ]
-      },
-      {
         "matcher": "WebFetch",
         "hooks": [
           {
             "type": "command",
             "command": "~/.claude/hooks/reddit-fetch.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/github-fetch.sh"
           }
         ]
       },
       {
-        "matcher": "*",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/spec-workflow-enforcer.sh"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/slash-command-handler.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/plan-cleanup.sh"
+            "command": "~/.claude/hooks/git-commit-message.sh"
           }
         ]
       }
     ]
   },
   "feedbackSurveyState": {
-    "lastShownTime": 1754015366941
+    "lastShownTime": 1754077171086
+  },
+  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline.sh"
   }
 }
