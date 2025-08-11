@@ -110,6 +110,40 @@ cat ~/.claude/vault.json | jq -r '.memory_path'
 The `hooks/` directory contains automation scripts that enhance Claude Code workflows.
 These hooks are triggered automatically by [Claude Code's hook system](https://docs.anthropic.com/en/docs/claude-code/hooks).
 
+### GitHub Fetch Hook
+
+#### `github-fetch.sh`
+
+- **Triggered**: When `WebFetch` is called with GitHub URLs (github.com or configured enterprise domains)
+- **Purpose**: Intercepts GitHub URL fetches and uses GitHub CLI (`gh`) instead for better reliability and authentication
+- **Features**:
+  - Full support for both GitHub.com and GitHub Enterprise instances
+  - Automatic proxy configuration for enterprise domains
+  - Rich content retrieval for all GitHub URL types:
+    - **Repositories**: Description, README content
+    - **Pull Requests**: Details, comments, files changed, truncated diff (800 chars), checks
+    - **Issues**: Full content with comments
+    - **Files/Blobs**: Direct file content retrieval
+    - **Commits**: Message, author, stats, files changed
+    - **Releases**: List of releases and latest release details
+    - **GitHub Actions**: Workflows and recent runs
+    - **User/Org Profiles**: Profile info and recent repositories
+  - Smart diff truncation with instructions for full diff
+  - Educational hints showing exact `gh` commands used
+- **Configuration**: `github-config.json`
+  ```json
+  {
+    "enterprise_domains": ["github.enterprise.com"],
+    "proxy_settings": {
+      "github.enterprise.com": {
+        "http_proxy": "socks5://127.0.0.1:8080",
+        "https_proxy": "socks5://127.0.0.1:8080"
+      }
+    }
+  }
+  ```
+- **Usage**: Simply use `WebFetch("https://github.com/...")` and the hook automatically uses `gh` CLI
+
 ### Reddit Fetch Hook
 
 #### `reddit-fetch.sh`
