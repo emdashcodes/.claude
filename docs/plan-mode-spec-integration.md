@@ -8,13 +8,13 @@ When you create a plan using plan mode, it automatically integrates with the spe
 
 ## Configuration
 
-The system uses `spec.json` to configure where specs are stored:
+The system uses `config/spec.json` to configure where specs are stored:
 
-- Project-level: `.claude/spec.json`
-- Global: `~/.claude/spec.json`
+- Project-level: `.claude/config/spec.json`
+- Global: `~/.claude/config/spec.json`
 - Default: `.claude/specs/`
 
-Example `spec.json`:
+Example `config/spec.json`:
 
 ```json
 {

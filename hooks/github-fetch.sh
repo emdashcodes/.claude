@@ -16,7 +16,7 @@
 #   - Provides rich output with multiple commands for comprehensive info
 #
 # CONFIGURATION:
-#   Enterprise domains and proxy settings configured in ~/.claude/github-config.json
+#   Enterprise domains and proxy settings configured in ~/.claude/config/github-config.json
 #
 # OUTPUT:
 #   JSON response with decision:"block" and reason containing gh output
@@ -75,7 +75,7 @@ if [ $? -ne 0 ] || [ -z "$URL" ] || [ "$URL" = "null" ]; then
 fi
 
 # Load enterprise domains from config if it exists
-CONFIG_FILE="$HOME/.claude/github-config.json"
+CONFIG_FILE="$HOME/.claude/config/github-config.json"
 ENTERPRISE_DOMAINS=""
 if [ -f "$CONFIG_FILE" ]; then
     ENTERPRISE_DOMAINS=$(jq -r '.enterprise_domains[]' "$CONFIG_FILE" 2>/dev/null | tr '\n' '|' | sed 's/|$//')

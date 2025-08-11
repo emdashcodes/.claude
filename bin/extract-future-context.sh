@@ -2,7 +2,7 @@
 # Extract future context from the most recent completed session
 
 # Get vault paths
-VAULT_CONFIG=$(cat ~/.claude/vault.json)
+VAULT_CONFIG=$(cat ~/.claude/config/vault.json)
 SESSIONS_PATH=$(echo "$VAULT_CONFIG" | jq -r '.sessions_path')
 SESSIONS_PATH="${SESSIONS_PATH/#\~/$HOME}"
 

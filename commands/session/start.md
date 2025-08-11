@@ -14,12 +14,12 @@ Initialize a new session by loading relevant context
 ## Instructions
 
 1. **Load Core Memory Context**: Read these essential files from vault:
-   - Check `!cat ~/.claude/vault.json | jq -r '.memory_path'` for relevant memory files (preferences, etc)
+   - Check `!cat ~/.claude/config/vault.json | jq -r '.memory_path'` for relevant memory files (preferences, etc)
    - Check for any project-specific memory files related to the user prompt or the tmux session name
 
 2. **Review Recent Sessions**:
-   - List recent journal entries in `!cat ~/.claude/vault.json | jq -r '.sessions_path'`
-   - List recent entries in `!cat ~/.claude/vault.json | jq -r '.entries_path'`
+   - List recent journal entries in `!cat ~/.claude/config/vault.json | jq -r '.sessions_path'`
+   - List recent entries in `!cat ~/.claude/config/vault.json | jq -r '.entries_path'`
    - Briefly scan for related entries for context related to the user prompt or the tmux session name
    - Note any ongoing work related to the user prompt or the tmux session name
 

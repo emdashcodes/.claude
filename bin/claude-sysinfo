@@ -25,27 +25,27 @@ case "$1" in
         git worktree list --porcelain 2>/dev/null | head -1 | sed 's/worktree //' || echo "No worktree"
         ;;
     "vault-config")
-        cat ~/.claude/vault.json
+        cat ~/.claude/config/vault.json
         ;;
     "vault-entries-path")
-        path=$(cat ~/.claude/vault.json | jq -r '.entries_path')
+        path=$(cat ~/.claude/config/vault.json | jq -r '.entries_path')
         echo "${path/#\~/$HOME}"
         ;;
     "vault-sessions-path") 
-        path=$(cat ~/.claude/vault.json | jq -r '.sessions_path')
+        path=$(cat ~/.claude/config/vault.json | jq -r '.sessions_path')
         echo "${path/#\~/$HOME}"
         ;;
     "vault-memory-path")
-        path=$(cat ~/.claude/vault.json | jq -r '.memory_path')
+        path=$(cat ~/.claude/config/vault.json | jq -r '.memory_path')
         echo "${path/#\~/$HOME}"
         ;;
     "session-folder-path")
-        sessions_path=$(cat ~/.claude/vault.json | jq -r '.sessions_path')
+        sessions_path=$(cat ~/.claude/config/vault.json | jq -r '.sessions_path')
         expanded_path="${sessions_path/#\~/$HOME}"
         echo "$expanded_path/$(date +%Y/%m/%d)/"
         ;;
     "session-count-today")
-        sessions_path=$(cat ~/.claude/vault.json | jq -r '.sessions_path')
+        sessions_path=$(cat ~/.claude/config/vault.json | jq -r '.sessions_path')
         expanded_path="${sessions_path/#\~/$HOME}"
         ls -1 "$expanded_path/$(date +%Y/%m/%d)/" 2>/dev/null | wc -l | tr -d ' '
         ;;

@@ -21,7 +21,7 @@ Share, fork, copy parts of, and customize this configuration to build your own s
 ├── README.md              # This file
 ├── CLAUDE.md              # Main Claude Code memory/instructions
 ├── EXAMPLE-PROMPT.md      # Auto-injected system prompt template for others to customize (copy to PROMPT.md)
-├── example.vault.json     # Example vault configuration (copy to vault.json)
+├── config/                # Configuration files directory
 ├── settings.json          # Claude Code configuration
 ├── commands/              # Custom slash commands
 ├── hooks/                 # Automation hooks
@@ -61,7 +61,7 @@ the wrapper automatically appends your `PROMPT.md` content using `--append-syste
 
 ## Obsidian Integration
 
-The `vault.json` file configures paths to your knowledge vault. These paths are provided to specific Claude Code commands to load relevant files:
+The `config/vault.json` file configures paths to your knowledge vault. These paths are provided to specific Claude Code commands to load relevant files:
 
 - `commands/session-start.md`: Begin a new session
 - `commands/session-start-task.md`: Start a session with a specific task
@@ -72,10 +72,10 @@ The `vault.json` file configures paths to your knowledge vault. These paths are 
 1. Copy the example configuration:
 
    ```bash
-   cp example.vault.json vault.json
+   cp config/example.vault.json config/vault.json
    ```
 
-2. Edit `vault.json` to match your vault structure:
+2. Edit `config/vault.json` to match your vault structure:
 
    ```json
    {
@@ -99,10 +99,10 @@ Slash commands dynamically load paths using bash + jq and are provided in the pr
 
 ```bash
 # Get sessions path
-cat ~/.claude/vault.json | jq -r '.sessions_path'
+cat ~/.claude/config/vault.json | jq -r '.sessions_path'
 
 # Get memory path
-cat ~/.claude/vault.json | jq -r '.memory_path'
+cat ~/.claude/config/vault.json | jq -r '.memory_path'
 ```
 
 ## Automation Hooks
@@ -130,7 +130,7 @@ These hooks are triggered automatically by [Claude Code's hook system](https://d
     - **User/Org Profiles**: Profile info and recent repositories
   - Smart diff truncation with instructions for full diff
   - Educational hints showing exact `gh` commands used
-- **Configuration**: `github-config.json`
+- **Configuration**: `config/github-config.json`
   ```json
   {
     "enterprise_domains": ["github.enterprise.com"],

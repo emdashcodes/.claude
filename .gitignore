@@ -14,4 +14,6 @@ PROMPT.md
 .env
 scratch/
 research/
-github-config.json
+config/github-config.json
+config/spec.json
+config/vault.json

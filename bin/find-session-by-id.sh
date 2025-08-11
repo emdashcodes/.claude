@@ -7,7 +7,7 @@ if [ $# -lt 1 ]; then
 fi
 
 SESSION_ID="$1"
-SEARCH_PATH="${2:-$(cat ~/.claude/vault.json | jq -r '.sessions_path')}"
+SEARCH_PATH="${2:-$(cat ~/.claude/config/vault.json | jq -r '.sessions_path')}"
 SEARCH_PATH="${SEARCH_PATH/#\~/$HOME}"
 
 # Search for files containing the session ID
