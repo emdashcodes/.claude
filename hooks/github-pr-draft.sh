@@ -103,9 +103,10 @@ fi
 # Save draft content - just the actual PR content
 DRAFT_FILE="$DRAFT_DIR/pr-draft-$SESSION_ID.md"
 cat > "$DRAFT_FILE" << EOF
-Title: $PR_TITLE
+# Title
+$PR_TITLE
 
-Body:
+# Body
 $PR_BODY
 EOF
 
