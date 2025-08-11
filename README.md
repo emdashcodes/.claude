@@ -163,6 +163,32 @@ These hooks are triggered automatically by [Claude Code's hook system](https://d
   - `MAX_POSTS=10` - Number of posts to display for subreddit listings
 - **Usage**: Simply use `WebFetch("https://reddit.com/...")` and the hook provides enhanced content automatically
 
+### Git Commit Hook
+
+#### `git-commit.sh`
+
+- **Triggered**: When running any `git commit` command via Bash tool
+- **Purpose**: Enforces commit message standards and prevents dangerous flags
+- **Features**:
+  - **Prefix validation**: Requires commits to start with: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`, `perf:`, `ci:`, `build:`, `revert:`, `add:`, `update:`, `remove:`
+  - **Length limit**: Enforces 75 character maximum for commit messages
+  - **Single-line only**: Blocks multi-line commit messages
+  - **Security**: Blocks `-f` and `--no-verify` flags by default
+- **Configuration**: 
+  - To temporarily allow `-f` and `--no-verify`: Edit `hooks/git-commit.sh` and set `ALLOW_FORCE_COMMIT=true`
+- **Error messages**: Provides clear guidance when blocking commits
+- **Examples**:
+  ```bash
+  # Valid commits
+  git commit -m "feat: add user authentication"
+  git commit -m "fix: resolve memory leak in parser"
+  
+  # Invalid commits (will be blocked)
+  git commit -m "Added new feature"  # No prefix
+  git commit -m "feat: this is a really long commit message that exceeds limit"  # Too long
+  git commit -f -m "feat: force push"  # -f flag blocked
+  ```
+
 ### Plan Management Hooks
 
 Two hooks work together to integrate planning with the spec workflow:
