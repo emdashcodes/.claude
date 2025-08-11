@@ -113,7 +113,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/git-commit-message.sh"
+            "command": "~/.claude/hooks/git-commit.sh"
           }
         ]
       }

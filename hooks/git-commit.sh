@@ -1,6 +1,12 @@
 #!/bin/bash
-# Claude Code Hook: Git Commit Message Validator
-# Validates: length, prefix format, and single-line commits
+# Claude Code Hook: Git Commit Validator
+# Validates: length, prefix format, single-line commits
+# Blocks: -f, --no-verify flags (unless disabled)
+# 
+# To allow -f/--no-verify: Set ALLOW_FORCE_COMMIT=true below
+
+# Manual override - set to true to allow -f and --no-verify flags
+ALLOW_FORCE_COMMIT=false
 
 # Read JSON input
 JSON_DATA=$(cat)
@@ -19,6 +25,19 @@ fi
 if ! echo "$COMMAND" | grep -q "^git commit"; then
     echo '{"decision": "approve"}'
     exit 0
+fi
+
+# Block -f and --no-verify flags (unless explicitly allowed)
+if [ "$ALLOW_FORCE_COMMIT" != "true" ]; then
+    if echo "$COMMAND" | grep -qE -- "(-f|--no-verify)"; then
+        cat << EOF
+{
+  "decision": "block",
+  "reason": "Force commits and skipping verification are not allowed!\n\nThe -f and --no-verify flags are blocked for safety.\n\nTo allow these flags, manually edit hooks/git-commit.sh and set ALLOW_FORCE_COMMIT=true"
+}
+EOF
+        exit 0
+    fi
 fi
 
 # Extract commit message
