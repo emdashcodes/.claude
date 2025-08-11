@@ -11,8 +11,8 @@ LOCK_FILE="$STATE_DIR/pr-draft-$SESSION_ID.lock"
 
 # Check if lock file exists
 if [ ! -f "$LOCK_FILE" ]; then
-    echo "❌ No PR draft found for session: $SESSION_ID"
-    echo "   No pending PR to approve"
+    echo "No PR draft found for session: $SESSION_ID"
+    echo "No pending PR to approve"
     exit 1
 fi
 
@@ -22,26 +22,25 @@ DRAFT_FILE=$(jq -r '.draft_file // ""' "$LOCK_FILE" 2>/dev/null)
 COMMAND=$(jq -r '.command // ""' "$LOCK_FILE" 2>/dev/null)
 
 if [ "$LOCK_STATUS" = "approved" ]; then
-    echo "✅ PR draft already approved for session: $SESSION_ID"
-    echo "   Re-run your gh pr create command to submit"
+    echo "PR draft already approved for session: $SESSION_ID"
+    echo "Re-run your gh pr create command to submit"
     exit 0
 fi
 
 # Display draft content for review
-echo "📝 PR Draft Review"
+echo "Reviewing PR Draft:"
 echo "=================="
 if [ -f "$DRAFT_FILE" ]; then
     cat "$DRAFT_FILE"
-    echo ""
-    echo "=================="
 fi
+echo "=================="
 
 # Update lock status to approved
 jq '.status = "approved" | .approved_at = now' "$LOCK_FILE" > "$LOCK_FILE.tmp" && mv "$LOCK_FILE.tmp" "$LOCK_FILE"
 
 echo ""
-echo "✅ PR draft APPROVED for session: $SESSION_ID"
+echo "PR draft APPROVED for session: $SESSION_ID"
 echo ""
-echo "📤 Now re-run your gh pr create command to submit the PR."
+echo "Now re-run your gh pr create command to submit the PR."
 echo ""
 echo "The PR will be automatically submitted and the draft will be cleaned up."

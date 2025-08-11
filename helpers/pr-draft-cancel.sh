@@ -19,8 +19,8 @@ fi
 
 # Check if lock file exists
 if [ ! -f "$LOCK_FILE" ]; then
-    echo "❌ No PR draft found for session: $SESSION_ID"
-    echo "   Nothing to cancel"
+    echo "No PR draft found for session: $SESSION_ID"
+    echo "Nothing to cancel"
     exit 1
 fi
 
@@ -33,13 +33,13 @@ rm -f "$LOCK_FILE" "$LOCK_FILE.action" "$LOCK_FILE.cleanup" 2>/dev/null
 # Remove draft file if it exists
 if [ -n "$DRAFT_FILE" ] && [ -f "$DRAFT_FILE" ]; then
     rm -f "$DRAFT_FILE"
-    echo "🗑️  Removed draft: $DRAFT_FILE"
+    echo "Removed draft: $DRAFT_FILE"
 fi
 
 # Also try to remove session-specific draft in case path changed
 rm -f "$DRAFT_DIR/pr-draft-$SESSION_ID.md" 2>/dev/null
 
 echo ""
-echo "❌ PR draft CANCELLED for session: $SESSION_ID"
-echo "   Lock and draft files have been removed"
-echo "   You can create a new PR draft at any time"
+echo "PR draft CANCELLED for session: $SESSION_ID"
+echo "Lock and draft files have been removed"
+echo "You can create a new PR draft at any time"

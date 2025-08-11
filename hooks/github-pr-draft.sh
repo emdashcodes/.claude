@@ -100,17 +100,12 @@ if echo "$COMMAND" | grep -q -- "--body"; then
     fi
 fi
 
-# Save draft content (without the command details for cleaner review)
+# Save draft content - just the actual PR content
 DRAFT_FILE="$DRAFT_DIR/pr-draft-$SESSION_ID.md"
 cat > "$DRAFT_FILE" << EOF
-# PR Draft Review
-**Session:** $SESSION_ID
-**Created:** $(date)
+Title: $PR_TITLE
 
-## Title
-$PR_TITLE
-
-## Body
+Body:
 $PR_BODY
 EOF
 
@@ -134,14 +129,14 @@ if [ -f "$TEMPLATE_FILE" ]; then
 fi
 
 # Block the command with guidance - properly escape the reason field
-REASON="PR Draft Review Required!
+REASON="PR Draft Review Required
 
-📝 Your PR draft has been saved for review.
+Your PR draft has been saved for review.
 
 $TEMPLATE_CONTENT
 
-✅ To approve and submit: /pr-draft:approve
-❌ To cancel: /pr-draft:cancel
+To approve and submit: /pr-draft:approve
+To cancel: /pr-draft:cancel
 
 Draft saved to: $DRAFT_FILE"
 

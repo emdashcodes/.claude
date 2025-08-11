@@ -1,20 +1,24 @@
-# PR Template Guidelines
+# PR Template
 
-Please structure your PR description following this format:
+Please format the PR with this structure:
 
-[Title - 75 chars max, no prefix]
-Fixes #[issue number] (if applicable)
+**Title**: 75 chars max, no prefix
 
-[1 Paragraph Summary - What changed and why it matters]
+**Body format**:
+```
+[One paragraph summary of what changed and why it matters]
+
+Fixes #[issue] (if applicable)
 
 ## Why
-[1 Paragraph explaining the motivation/problem being solved]
+[One paragraph explaining the motivation/problem]
 
 ## How  
-[1 Paragraph explaining the technical approach]
-- Supporting bullet points if needed
+[One paragraph explaining the technical approach]
+- Bullet points for details if needed
 
 ## Testing Steps
-- Step 1: [Specific action]
-- Step 2: [Expected result]
-- Step 3: [Verification method]
+1. [Specific action]
+2. [Expected result]
+3. [How to verify]
+```
