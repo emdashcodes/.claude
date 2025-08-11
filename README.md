@@ -189,54 +189,6 @@ These hooks are triggered automatically by [Claude Code's hook system](https://d
   git commit -f -m "feat: force push"  # -f flag blocked
   ```
 
-### Plan Management Hooks
-
-Two hooks work together to integrate planning with the spec workflow:
-
-#### `plan-extractor.sh`
-
-- **Triggered**: When Claude uses the `exit_plan_mode` tool to present a plan
-- **Purpose**: Creates plan.md in spec folder structure for spec generation
-- **Features**:
-  - Uses Claude Code SDK to generate kebab-case slug from title
-  - Creates spec folder: `{spec_path}/{slug}/`
-  - Saves plan with minimal frontmatter (session_id, status: draft)
-  - Integrates with spec workflow for requirements generation
-- **Configuration**: Uses `spec.json` hierarchy (project → global → default)
-- **Output**: `{spec_path}/{slug}/plan.md`
-
-#### `plan-cleanup.sh`
-
-- **Triggered**: When user approves a plan after `exit_plan_mode`
-- **Purpose**: Overwrites draft with approved version and triggers spec workflow
-- **Features**:
-  - Completely overwrites plan.md with approved content
-  - Updates status to "approved" in frontmatter
-  - Prompts for spec generation workflow
-  - Ready for agent-based requirements generation
-- **Output**: Updated plan.md with approved status
-
-### Plan Mode and Spec Integration
-
-The plan mode now integrates directly with the spec workflow:
-
-1. **Automatic Spec Creation**: Approved plans trigger spec generation
-2. **Agent-Based Workflow**: Specialized agents handle each phase
-3. **Configurable Locations**: Use `spec.json` to customize spec folder
-4. **Progressive Enhancement**: Plans → Requirements → Tasks → Implementation
-
-See [docs/plan-mode-spec-integration.md](docs/plan-mode-spec-integration.md) for details.
-
-#### Plan Workflow
-
-1. Claude creates a plan using `exit_plan_mode` → `plan-extractor.sh` saves draft
-2. User reviews, makes edits, and approves the plan → `plan-cleanup.sh`
-3. Claude creates an approved copy and cleans up drafts
-4. Result: Clean organization with approved plans archived
-
-#### Configuration
-
-Set `plans_path` in `vault.json`.
 
 ## Slash Commands
 
