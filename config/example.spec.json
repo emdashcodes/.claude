@@ -1,0 +1,4 @@
+{
+  "specs_path": ".claude/specs/",
+  "description": "Path where spec files (plan.md, requirements.md, design.md, tasks.md) are stored"
+}
