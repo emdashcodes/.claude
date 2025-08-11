@@ -2,7 +2,7 @@
 # Claude Code Hook: Git Commit Validator
 # Validates: length, prefix format, single-line commits
 # Blocks: -f, --no-verify flags (unless disabled)
-# 
+#
 # To allow -f/--no-verify: Set ALLOW_FORCE_COMMIT=true below
 
 # Manual override - set to true to allow -f and --no-verify flags

@@ -1,22 +1,5 @@
 # Rules
 
-## Concurrent Agent Execution
-
-**CRITICAL**: When spawning multiple agents using the Task tool, ALWAYS invoke them CONCURRENTLY in a SINGLE MESSAGE. Never spawn agents sequentially across multiple messages. This applies to:
-
-- Research agents analyzing different topics
-- PR review agents checking different aspects
-- Any multi-agent workflow
-
-Example:
-
-```python
-# CORRECT - All in ONE message:
-Task("Agent 1", "First task...", "agent-type")
-Task("Agent 2", "Second task...", "agent-type")
-Task("Agent 3", "Third task...", "agent-type")
-```
-
 ## Always Fetch URLs When Provided
 
 **CRITICAL**: When a user provides a URL in their message, **ALWAYS** use the Fetch tool to retrieve and analyze the content before proceeding. This ensures you have the most current and accurate information to assist effectively. **Fetch URLs even if they seem familiar or if you think you know the content.**
@@ -69,6 +52,11 @@ graph LR
 
 - You MUST ALWAYS fetch GitHub PRs with the `gh` command line instead of fetching
 - You MUST ALWAYS uses `--repo` flag with `gh` to ensure compatibility with both GitHub.com and GitHub Enterprise instances
-- You MUST ALWAYS use short git commit messages (less than 75 chars)
 
 **Full workflow documentation**: `~/.claude/docs/tea-github-workflow.md`
+
+## Git Commit Messages
+
+- You MUST ALWAYS use short git commit messages (less than 75 chars)
+- Commit messages should be a single-line message
+- You must prefix commit messages with a type (feat fix docs style refactor test chore perf ci build revert add update remove)
