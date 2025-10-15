@@ -1,6 +1,6 @@
 ---
 description: Convert Mermaid diagrams to images (PNG, SVG, PDF) using mermaid-cli
-allowed-tools: Bash(mmdc:*), Bash(mermaid-helper create:*), Bash(mermaid-helper cleanup:*), Bash(test:*), Read, LS, Glob
+allowed-tools: Bash(mmdc:*), Read, LS, Glob
 ---
 
 # Mermaid to Image Converter
@@ -10,6 +10,7 @@ Convert Mermaid diagrams to various image formats using the mermaid-cli tool
 ## Instructions
 
 1. Parse the user's input to determine if they provided:
+   - Diagram content in the previous context/discussion
    - A file path (check if it exists and ends with .mmd or .md)
    - Mermaid diagram content (if it starts with keywords like graph, flowchart, sequenceDiagram, etc.)
    - Additional info for output format and options
@@ -21,11 +22,7 @@ Convert Mermaid diagrams to various image formats using the mermaid-cli tool
 
 3. Handle the input:
    - If a file path is provided and exists, use it directly
-   - If Mermaid content is provided:
-     a. Use the mermaid-helper script to create a temporary .mmd file
-     b. Pass the content to the script with create command: `mermaid-helper create "$CONTENT"`
-     c. Capture the temporary file path returned by the script
-     d. Set up cleanup to remove the temp file after conversion using `mermaid-helper cleanup "$TEMP_FILE"`
+   - If Mermaid content is provided, create a temporary .mmd file
 
 4. Construct the mmdc command with appropriate options:
    - `-i` input file (temp file or provided file)
@@ -39,7 +36,7 @@ Convert Mermaid diagrams to various image formats using the mermaid-cli tool
 
 5. Execute the conversion and clean up:
    - Run the mmdc command
-   - If using a temp file, clean it up with: `mermaid-helper cleanup "$TEMP_FILE"`
+   - If using a temp file, clean it up
    - Verify the output file was created
    - Report success with the output filename
 

@@ -1,18 +1,16 @@
 # emdashcodes/.claude
 
 This is a Claude Code configuration repository - like dotfiles but for AI.
-It includes custom commands, automated hooks and workflows, Obsidian integration, and other utilities.
+It includes custom commands, automated hooks, and a smart wrapper script.
 
 Share, fork, copy parts of, and customize this configuration to build your own setup based on your own preferences.
 
 ## Components
 
-- **Custom Slash Commands** - Specialized commands for task management, research, git operations, and more
-- **Automation Hooks** - Automated workflows powered by Claude Code's hook system including PR draft review
-- **Smart Wrapper** - Auto-injects additional system prompt + optional menu mode for session selection
-- **Utility Scripts** - Additional scripts to help with common workflows
-- **Obsidian Integration** - Includes specific commands for working with Obsidian vaults
-- **Settings** - My personal settings for Claude Code
+- **Custom Slash Commands** - Git operations, research, proofreading, and utility tools
+- **Automation Hooks** - Smart GitHub/Reddit fetching and commit message enforcement
+- **Smart Wrapper** - Auto-injects custom system prompt for personalized AI behavior
+- **Settings** - Personal Claude Code settings and configurations
 
 ## Repository Structure
 
@@ -26,7 +24,6 @@ Share, fork, copy parts of, and customize this configuration to build your own s
 ├── commands/              # Custom slash commands
 ├── hooks/                 # Automation hooks
 ├── bin/                   # Additional utility scripts (add to your PATH)
-│   └── claude-sysinfo     # System info utility for secure command permissions
 └── local/
     └── claude             # Smart wrapper script
 ```
@@ -47,306 +44,78 @@ the wrapper automatically appends your `PROMPT.md` content using `--append-syste
 - If an existing `--append-system-prompt` is provided, the two will be merged.
 - This does not run for scripts (`claude -p ...`).
 
-#### Menu Mode (off by default)
-
-- Set `CLAUDE_USE_MENU=1` to show interactive menu for plain `claude` commands
-- Choose between: Start new / Resume previous / Continue last conversation
-- Only affects bare `claude` - all other commands work normally
-
 #### Permissions Override
 
 - Set `CLAUDE_DANGEROUSLY_SKIP_PERMISSIONS=1` to automatically add `--dangerously-skip-permissions` flag
 - Applies to all Claude Code invocations (interactive, continue, resume, and scripting modes)
 - Use with caution - bypasses Claude Code's security restrictions
 
-## Obsidian Integration
-
-The `config/vault.json` file configures paths to your knowledge vault. These paths are provided to specific Claude Code commands to load relevant files:
-
-- `commands/session-start.md`: Begin a new session
-- `commands/session-start-task.md`: Start a session with a specific task
-- `commands/session-end.md`: Close a session with proper documentation
-
-### Setup
-
-1. Copy the example configuration:
-
-   ```bash
-   cp config/example.vault.json config/vault.json
-   ```
-
-2. Edit `config/vault.json` to match your vault structure:
-
-   ```json
-   {
-     "entries_path": "~/MyNotes/Daily",
-     "sessions_path": "~/MyNotes/Sessions",
-     "memory_path": "~/MyNotes/Memory",
-     "plans_path": "~/MyNotes/Plans"
-   }
-   ```
-
-- **entries_path**: Path to your daily notes directory
-- **sessions_path**: Path to your session log directory (where Claude will store session logs)
-- **memory_path**: Path to a directory for storing additional memory files for Claude
-- **plans_path**: Path to your plans directory (used by automation hooks)
-
-These can also be standard directories. They do not have to point to an Obsidian vault.
-
-### How It Works
-
-Slash commands dynamically load paths using bash + jq and are provided in the prompt:
-
-```bash
-# Get sessions path
-cat ~/.claude/config/vault.json | jq -r '.sessions_path'
-
-# Get memory path
-cat ~/.claude/config/vault.json | jq -r '.memory_path'
-```
-
 ## Automation Hooks
 
-The `hooks/` directory contains automation scripts that enhance Claude Code workflows.
-These hooks are triggered automatically by [Claude Code's hook system](https://docs.anthropic.com/en/docs/claude-code/hooks).
+The `hooks/` directory contains automation scripts that enhance Claude Code workflows. These hooks are triggered automatically by [Claude Code's hook system](https://docs.anthropic.com/en/docs/claude-code/hooks).
 
-### GitHub Fetch Hook
+### `github-fetch.sh`
 
-#### `github-fetch.sh`
+Intercepts `WebFetch` calls to GitHub URLs and uses `gh` CLI instead for better reliability and authentication.
 
-- **Triggered**: When `WebFetch` is called with GitHub URLs (github.com or configured enterprise domains)
-- **Purpose**: Intercepts GitHub URL fetches and uses GitHub CLI (`gh`) instead for better reliability and authentication
-- **Features**:
-  - Full support for both GitHub.com and GitHub Enterprise instances
-  - Automatic proxy configuration for enterprise domains
-  - Rich content retrieval for all GitHub URL types:
-    - **Repositories**: Description, README content
-    - **Pull Requests**: Details, comments, files changed, truncated diff (800 chars), checks
-    - **Issues**: Full content with comments
-    - **Files/Blobs**: Direct file content retrieval
-    - **Commits**: Message, author, stats, files changed
-    - **Releases**: List of releases and latest release details
-    - **GitHub Actions**: Workflows and recent runs
-    - **User/Org Profiles**: Profile info and recent repositories
-  - Smart diff truncation with instructions for full diff
-  - Educational hints showing exact `gh` commands used
-- **Configuration**: `config/github-config.json`
-  ```json
-  {
-    "enterprise_domains": ["github.enterprise.com"],
-    "proxy_settings": {
-      "github.enterprise.com": {
-        "http_proxy": "socks5://127.0.0.1:8080",
-        "https_proxy": "socks5://127.0.0.1:8080"
-      }
-    }
-  }
-  ```
-- **Usage**: Simply use `WebFetch("https://github.com/...")` and the hook automatically uses `gh` CLI
+**Features:**
 
-### Reddit Fetch Hook
+- Supports GitHub.com and GitHub Enterprise instances
+- Fetches PRs, issues, files, commits, releases, workflows, and profiles
+- Smart diff truncation with instructions for full diffs
+- Configurable via `config/github-config.json` for enterprise domains and proxy settings
 
-#### `reddit-fetch.sh`
+### `reddit-fetch.sh`
 
-- **Triggered**: When `WebFetch` is called with Reddit URLs (reddit.com domains)
-- **Purpose**: Provides comprehensive Reddit content retrieval via Reddit's public JSON API when standard web fetching is not available
-- **Features**:
-  - Seamless Reddit content access with enhanced functionality
-  - Automatic crosspost detection and original content fetching
-  - Community discussion capture (configurable comment count)
-  - External link detection with actionable `Fetch("URL")` recommendations
-  - Support for multiple post types (text, image, link, crosspost)
-  - Comprehensive metadata display (scores, dates, authors, subreddits)
-  - Subreddit browsing with configurable post count
-- **Configuration**:
-  - `MAX_COMMENTS=10` - Number of comments to display for individual posts
-  - `MAX_POSTS=10` - Number of posts to display for subreddit listings
-- **Usage**: Simply use `WebFetch("https://reddit.com/...")` and the hook provides enhanced content automatically
+Intercepts `WebFetch` calls to Reddit URLs and retrieves content via Reddit's JSON API.
 
-### Git Commit Hook
+**Features:**
 
-#### `git-commit.sh`
+- Fetches posts with comments, crossposts, and external links
+- Configurable comment/post limits (`MAX_COMMENTS=10`, `MAX_POSTS=10`)
+- Detects external links and suggests fetching them
 
-- **Triggered**: When running any `git commit` command via Bash tool
-- **Purpose**: Enforces commit message standards and prevents dangerous flags
-- **Features**:
-  - **Prefix validation**: Requires commits to start with: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`, `perf:`, `ci:`, `build:`, `revert:`, `add:`, `update:`, `remove:`
-  - **Length limit**: Enforces 75 character maximum for commit messages
-  - **Single-line only**: Blocks multi-line commit messages
-  - **Security**: Blocks `-f` and `--no-verify` flags by default
-- **Configuration**: 
-  - To temporarily allow `-f` and `--no-verify`: Edit `hooks/git-commit.sh` and set `ALLOW_FORCE_COMMIT=true`
-- **Error messages**: Provides clear guidance when blocking commits
-- **Examples**:
-  ```bash
-  # Valid commits
-  git commit -m "feat: add user authentication"
-  git commit -m "fix: resolve memory leak in parser"
-  
-  # Invalid commits (will be blocked)
-  git commit -m "Added new feature"  # No prefix
-  git commit -m "feat: this is a really long commit message that exceeds limit"  # Too long
-  git commit -f -m "feat: force push"  # -f flag blocked
-  ```
+### `git-commit.sh`
 
-### GitHub PR Draft Review Hook
+Enforces commit message standards when using `git commit` via Bash tool.
 
-#### `github-pr-draft.sh`
+**Features:**
 
-- **Triggered**: When running `gh pr create` command via Bash tool
-- **Purpose**: Enforces PR review workflow before submission to GitHub
-- **Features**:
-  - **Draft Review**: Blocks PR creation until explicitly approved
-  - **Template Guidance**: Provides structured PR template with sections for Why, How, and Testing Steps
-  - **Session Management**: Uses session-specific lock files with state tracking
-  - **Auto-cleanup**: Removes draft and lock files after successful PR submission
-- **Configuration**: `config/pr-draft-config.json`
-  ```json
-  {
-    "draft_dir": ".claude/drafts"
-  }
-  ```
-- **Workflow**:
-  1. When `gh pr create` is run, the command is blocked and draft is saved
-  2. User reviews the PR template guidelines
-  3. User runs `/pr-draft:approve` to approve the draft
-  4. User re-runs the original `gh pr create` command to submit
-  5. Draft and lock files are automatically cleaned up
-- **Commands**:
-  - `/pr-draft:approve` - Approve pending PR draft for submission
-  - `/pr-draft:cancel` - Cancel PR draft and remove files
-- **Template Location**: `templates/pr-template.md`
+- Requires conventional commit prefixes: `feat:`, `fix:`, `docs:`, etc.
+- Enforces 75 character max length
+- Blocks multi-line messages
+- Blocks `-f` and `--no-verify` flags (configurable via `ALLOW_FORCE_COMMIT=true`)
 
+**Example:**
+
+```bash
+# Valid
+git commit -m "feat: add user authentication"
+
+# Invalid
+git commit -m "Added feature"  # No prefix
+```
 
 ## Slash Commands
 
 The `commands/` directory contains custom slash commands that extend Claude Code with specialized workflows.
 
-Commands are organized by category:
-
 ### Git Commands (`/git/*`)
 
-- **`/git/create-commit`**: Creates git commits with proper formatting
-  - Enforces max 75 character limit
-  - Prefixes commits with type (feat, fix, docs, etc.)
-  - Analyzes changes to generate meaningful commit messages
-- **`/git/create-pr`**: Creates comprehensive pull requests based on session changes
-  - Generates PR title and body from commit history
-  - Includes test plan and summary
-  - Automatically pushes to remote if needed
-- **`/git/update-pr`**: Updates existing PRs with recent commits
-  - Fetches PR details and updates with new changes
-  - Maintains PR description format
+- **`/git/create-commit`**: Creates git commits with proper formatting and conventional commit prefixes
+- **`/git/create-pr`**: Creates comprehensive pull requests with generated titles, summaries, and test plans
+- **`/git/review-pr`**: Reviews pull requests with detailed feedback on code quality and potential issues
+- **`/git/update-pr`**: Updates existing PRs with recent commits while maintaining PR description format
 
-### Session Management (`/session/*`)
+### Utility Commands
 
-- **`/session/start`**: Initializes new sessions by loading relevant context from vault
-  - Loads memory files from configured paths
-  - Sets up session context for ongoing work
-- **`/session/end`**: Closes sessions with proper documentation
-  - Creates session logs in vault
-  - Summarizes work completed
-  - Archives session state
-
-### Spec System (`/spec/*`)
-
-A structured 4-phase approach for building features using EARS methodology:
-
-- **`/spec/01-requirements`**: Requirements gathering using EARS (Easy Approach to Requirements Syntax)
-  - Structured format: "When <trigger> the system shall <action>"
-  - Creates formal requirements document
-  - Supports external spec references
-- **`/spec/02-design`**: Creates design documents with research capabilities
-  - Integrates with Perplexity for research
-  - Generates architecture and implementation designs
-  - Creates detailed technical specifications
-- **`/spec/03-implementation-plan`**: Creates actionable implementation task lists
-  - Breaks down design into concrete tasks
-  - Uses TodoWrite for task tracking
-  - Prioritizes and sequences work
-- **`/spec/04-task`**: Executes tasks from the implementation plan
-  - Works through tasks systematically
-  - Updates task status in real-time
-  - Completes implementation based on plan
+- **`/proofread`**: Professional proofreading and editing with grammar, flow, and clarity improvements
+- **`/research`**: Comprehensive research with Perplexity integration, source validation, and detailed reporting
 
 ### Tools (`/tools/*`)
 
-- **`/tools/mermaid-to-image`**: Converts Mermaid diagrams to images
-  - Supports PNG, SVG, and PDF output formats
-  - Uses mermaid-cli for rendering
-  - Handles complex diagram types
-- **`/tools/pbcopy`**: Copies relevant content from responses to clipboard
-  - Extracts code blocks and specific content
-  - Maintains formatting for pasting
-- **`/tools/pbquote`**: Copies content formatted as block quotes
-  - Formats for replying to messages
-  - Preserves markdown structure
-- **`/tools/site-to-md`**: Downloads and converts websites to markdown
-  - Uses trafilatura for content extraction
-  - Preserves article structure and metadata
-  - Useful for research and documentation
+- **`/tools/mermaid-to-image`**: Converts Mermaid diagrams to PNG, SVG, or PDF images
+- **`/tools/pbcopy`**: Copies code blocks and content from responses to clipboard
+- **`/tools/pbquote`**: Copies content formatted as block quotes for replies
+- **`/tools/site-to-md`**: Downloads and converts websites to markdown using trafilatura
 
-### Standalone Commands
-
-- **`/proofread`**: Professional proofreading and editing
-  - Checks grammar, flow, and clarity
-  - Preserves author's voice and style
-  - Provides tracked changes and explanations
-- **`/research`**: Comprehensive research with Perplexity integration
-  - Structured research workflow
-  - Source management and citation tracking
-  - Detailed reporting with findings
-
-### Key Features Across Commands
-
-- **Tool Restrictions**: Each command has specific `allowed-tools` to limit access appropriately
-- **Context Integration**: Commands use `!` syntax to execute and embed command output
-- **Vault Integration**: Session commands integrate with Obsidian vault for persistence
-- **Research Capabilities**: Multiple commands support web search via Perplexity MCP
-- **EARS Methodology**: The spec system uses formal requirements syntax for clarity
-
-All vault-integrated commands use the vault configuration system for portable path management and include dynamic context injection.
-
-### System Info Utility (`bin/claude-sysinfo`)
-
-A secure wrapper utility that provides system information without requiring broad bash permissions in slash commands. Commands can use `Bash(claude-sysinfo:*)`.
-
-**Examples:**
-
-- `claude-sysinfo session-context` - Full context for session commands
-- `claude-sysinfo task-context` - Full context for task commands
-- `claude-sysinfo date` - Current date (YYYY-MM-DD)
-- `claude-sysinfo git-branch` - Current git branch
-- `claude-sysinfo vault-tasks-path` - Tasks directory path
-
-## Setup Instructions
-
-### Adding Utilities to PATH
-
-To use the utilities in `bin/` from anywhere in your system, add the directory to your PATH:
-
-Add to your shell configuration file:
-
-**For zsh:**
-
-```bash
-echo 'export PATH="$HOME/.claude/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**For bash:**
-
-```bash
-echo 'export PATH="$HOME/.claude/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-**Verify setup:**
-
-```bash
-which claude-sysinfo
-# Should output: /Users/yourusername/.claude/bin/claude-sysinfo
-
-claude-sysinfo date
-# Should output current date in YYYY-MM-DD format
-```

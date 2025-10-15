@@ -15,5 +15,9 @@ PROMPT.md
 scratch/
 research/
 config/github-config.json
-config/spec.json
-config/vault.json
+
+file-history/
+debug/
+history.jsonl
+plugins/config.json
+commands/a8c

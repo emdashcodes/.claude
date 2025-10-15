@@ -58,7 +58,7 @@
       "Bash(done:*)"
     ],
     "deny": [
-      "WebSearch"
+      "SlashCommand"
     ],
     "additionalDirectories": [
       "/Users/emdash/Grimoire",
@@ -67,7 +67,6 @@
       "/Users/emdash/Documents",
       "/Users/emdash/Dev",
       "/Users/emdash/.claude",
-      "/Users/emdash/Studio",
       "/Users/emdash/bin"
     ]
   },
@@ -114,21 +113,17 @@
           {
             "type": "command",
             "command": "~/.claude/hooks/git-commit.sh"
-          },
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/github-pr-draft.sh"
           }
         ]
       }
     ]
   },
-  "feedbackSurveyState": {
-    "lastShownTime": 1754077171086
-  },
-  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline.sh"
+  },
+  "alwaysThinkingEnabled": true,
+  "feedbackSurveyState": {
+    "lastShownTime": 1754077171086
   }
 }

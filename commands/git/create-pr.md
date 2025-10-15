@@ -28,17 +28,23 @@ Create a comprehensive Pull Request based on the changes we made this session as
 3. **PR Draft Structure**:
 
 ```markdown
-[Short title that summarizes the changes]
+# Title (75 chars max, no prefix)
 
-[First paragraph: Explain WHAT was changed and WHY]
+[One paragraph summary of what changed and why it matters]
 
-[Describe HOW it was implemented (high-level technical approach)]
+Fixes #[issue] (if applicable)
 
-## Testing Instructions
-- Provide step-by-step instructions that allow reviewers to verify the changes
-- Each step should be actionable and specific
-- Include expected outcomes
-- Note any prerequisites or setup required
+## Why
+[One paragraph explaining the motivation/problem]
+
+## How
+[One paragraph explaining the technical approach]
+- Bullet points for details if needed
+
+## Testing Steps
+1. [Specific action]
+2. [Expected result]
+3. [How to verify]
 ```
 
 ## Additional Guidelines
